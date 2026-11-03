@@ -9,6 +9,7 @@ const OR = Object.fromEntries((DATA.muendlich||[]).map(e => [e.id, e]));
 const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pName = () => S.pname || PRUEFERIN_STANDARD;
+const pRolle = () => rolle({ name: pName(), m: !!S.pm });
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 /* Stimme der Prüferin: ElevenLabs über /api/tts (öffentliche Seite), sonst die Stimme des Geräts */
 const AUDIO = { el: null, url: null };
@@ -85,19 +86,19 @@ const ArtifactB = {
   },
   async korrigieren(ex, v){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(prueferPrompt(ex, v.antworten, pName()), { modelTier:"complex", cache:false });
-    return auswerten(ex, r, pName() + " (Prüferin)");
+    const r = await this.sample.json(prueferPrompt(ex, v.antworten, pRolle()), { modelTier:"complex", cache:false });
+    return auswerten(ex, r, pName() + " (" + pRolle().pruef + ")");
   },
   async pruefer(o, st, onText){
     if(!this.sample) throw { code:"no_ai" };
-    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung, pName())}, ...st.chat.slice(-30)];
+    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung, pRolle())}, ...st.chat.slice(-30)];
     if(turns[turns.length-1].role !== "user") turns.push({role:"user", content:"(weiter)"});
     const { text } = await this.sample(turns, { cache:false, onText: ({text}) => onText(text) });
     return text;
   },
   async oralEval(o, st){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung, pName()), { modelTier:"complex", cache:false });
+    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung, pRolle()), { modelTier:"complex", cache:false });
     if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + (st.sid || Date.now())).set({ fall:o.id, start:st.vorbStart||st.pStart||null, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
     return r;
   },
@@ -117,7 +118,7 @@ const ApiB = {
   async post(path, body){ return this.call(path, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) }); },
   async init(){
     S.name = LS.get("examen-name") || ""; S.ki = true; S.owner = !!LS.get("examen-admin");
-    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; if(st.name) S.pname = st.name; }catch{}
+    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; if(st.name) S.pname = st.name; S.pm = !!st.m; }catch{}
     S.uid = S.name ? await uidAusName(S.name) : null;
     S.docs = localAll();
     if(S.uid) await this.reload();
@@ -503,7 +504,7 @@ function renderOral(app, o){
   const speak = t => sprechen(t);
   const offlineFrage = () => {
     const gestellt = st.chat.filter(m => m.role === "assistant").length;
-    if(gestellt === 0) return "Guten Tag, ich bin " + pName() + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
+    if(gestellt === 0) return "Guten Tag, ich bin " + pName() + ", " + pRolle().ihr + " " + pRolle().pruef + ". Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
     const hatPlan = (st.planung||[]).some(r => r.p||r.m);
     if(hatPlan && gestellt === 1) return "Sie haben eine Pflegeplanung vorbereitet. Welches Pflegeproblem hat für Sie Vorrang, und wie begründen Sie Ihre wichtigste Maßnahme?";
     const f = o.fragen[gestellt - (hatPlan ? 2 : 1)];
@@ -620,19 +621,19 @@ function renderResults(app){
 function zeigeEinstellungen(c){
   $("#cfgstate").innerHTML = `<span class="pill ${c.ki?"done":"wait"}">${c.ki ? esc(pName()) + " korrigiert selbst ✓" : "Korrektur: noch aus"}</span> <span class="pill ${c.stimme?"done":"wait"}">${c.stimme ? "Stimme ✓" : "Stimme: aus"}</span>${c.stimmenFehler ? ` <span class="muted">Stimmenliste nicht geladen (${esc(c.stimmenFehler)})</span>` : ""}`;
   const sel = $("#k-voice"); const liste = (c.stimmen && c.stimmen.length) ? c.stimmen : [{ id: c.stimmeId, name: "Sarah (Standard)", info: "" }];
-  sel.innerHTML = liste.map(v => `<option data-name="${esc(v.name)}" value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
-  S.stimme = !!c.stimme; S.kiServer = !!c.ki; if(c.name) S.pname = c.name;
+  sel.innerHTML = liste.map(v => `<option data-name="${esc(v.name)}" data-gender="${esc(v.gender||"")}" value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
+  S.stimme = !!c.stimme; S.kiServer = !!c.ki; if(c.name) S.pname = c.name; S.pm = !!c.m;
 }
 async function einstellungenLaden(){
   const tok = LS.get("examen-admin") || "";
   try{ zeigeEinstellungen(await ApiB.call("/api/admin?einstellungen=1&token=" + encodeURIComponent(tok))); }catch(e){ $("#cfgstate").textContent = "Konnte die Einstellungen nicht laden (" + (e.code||"Fehler") + ")."; }
   const senden = async ein => { try{ zeigeEinstellungen(await ApiB.post("/api/admin", { token: tok, einstellungen: ein })); flash("Gespeichert."); }catch(e){ flash("Nicht gespeichert (" + (e.code||"Fehler") + ")."); } };
-  $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "" };
+  $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "", elevenVoiceGender: opt ? opt.dataset.gender || "" : "" };
     const a = $("#k-ant").value.trim(), el = $("#k-el").value.trim(); if(a) ein.anthropicKey = a; if(el) ein.elevenKey = el;
     await senden(ein); $("#k-ant").value = ""; $("#k-el").value = ""; };
   $("#del-ant").onclick = () => senden({ anthropicKey: "" });
   $("#del-el").onclick = () => senden({ elevenKey: "" });
-  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin " + stimmenVorname($("#k-voice").selectedOptions[0]?.dataset.name || pName()) + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
+  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin " + stimmenName($("#k-voice").selectedOptions[0]?.dataset.name || pName()) + ". Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
 }
 
 /* ---------- Abgaben (Besitzerin) ---------- */

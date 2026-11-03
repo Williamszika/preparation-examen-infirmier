@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice, prueferinName } from "../lib/common.mjs";
-import { DATA, auswerten, stimmenVorname } from "../lib/shared.mjs";
+import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice, prueferin, kiTest, nameAus, istMann, MODEL_KORREKTUR, MODEL_GESPRAECH } from "../lib/common.mjs";
+import { DATA, auswerten } from "../lib/shared.mjs";
 
 /* SHA-256 des Zugangsschlüssels der Besitzerin (der Schlüssel selbst steht nicht im Repo). ADMIN_TOKEN als Umgebungsvariable geht auch. */
 const HASH = "87d0b7961b66c8259fa27100b7f5635cb00537f1f22e2dc8736e08592284302f";
@@ -12,6 +12,7 @@ export default async (req) => {
     const sp = new URL(req.url).searchParams;
     if(!erlaubt(sp.get("token"))) return bad("Zugang verweigert", 403);
     if(sp.get("einstellungen")) return Response.json(await einstellungen());
+    if(sp.get("test") === "ki") return Response.json(await Promise.all([...new Set([MODEL_KORREKTUR(), MODEL_GESPRAECH(), "claude-sonnet-4-5", "claude-haiku-4-5"])].map(m => kiTest(m))));
     const { blobs } = await s.list();
     const docs = [];
     for(const b of blobs){ const d = await s.get(b.key, { type: "json" }); if(d) docs.push({ ...d, pid: d.uid }); }
@@ -23,7 +24,8 @@ export default async (req) => {
   const bd = await body(req);
   if(bd && erlaubt(bd.token) && bd.einstellungen && typeof bd.einstellungen === "object"){
     const ein = { ...bd.einstellungen };
-    if(typeof ein.elevenVoiceName === "string") ein.elevenVoiceName = stimmenVorname(ein.elevenVoiceName);
+    if(typeof ein.elevenVoiceName === "string"){ const full = ein.elevenVoiceName; ein.elevenVoiceName = nameAus(full); ein.elevenVoiceMale = istMann(ein.elevenVoiceName, ein.elevenVoiceGender) ? "1" : "0"; }
+    delete ein.elevenVoiceGender;
     await configSetzen(ein); return Response.json(await einstellungen());
   }
   if(bd && erlaubt(bd.token) && okUid(bd.uid) && bd.loeschen && (okKey(bd.key) || bd.oral)){
@@ -50,9 +52,9 @@ export default async (req) => {
 /* Zustand der Einstellungen — ohne die Schlüssel selbst */
 async function einstellungen(){
   const c = await ladeConfig(true);
-  const out = { ki: await kiAn(), stimme: await stimmeAn(), stimmeId: await agnesVoice(), name: await prueferinName(), anthropicGesetzt: !!c.anthropicKey, elevenGesetzt: !!c.elevenKey, stimmen: [] };
+  const out = { ki: await kiAn(), stimme: await stimmeAn(), stimmeId: await agnesVoice(), name: (await prueferin()).name, m: (await prueferin()).m, anthropicGesetzt: !!c.anthropicKey, elevenGesetzt: !!c.elevenKey, stimmen: [] };
   const k = await elevenKey();
-  if(k){ try{ const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": k } }); if(r.ok){ const j = await r.json(); out.stimmen = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name, info: [v.labels?.gender, v.labels?.accent, v.labels?.age].filter(Boolean).join(", ") })).slice(0, 80); } else out.stimmenFehler = r.status; }catch(e){ out.stimmenFehler = "netz"; } }
+  if(k){ try{ const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": k } }); if(r.ok){ const j = await r.json(); out.stimmen = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name, info: [v.labels?.gender, v.labels?.accent, v.labels?.age].filter(Boolean).join(", "), gender: v.labels?.gender || "" })).slice(0, 80); } else out.stimmenFehler = r.status; }catch(e){ out.stimmenFehler = "netz"; } }
   return out;
 }
 

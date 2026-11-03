@@ -6,14 +6,17 @@ function note(p){ if(p>=90)return[1,"sehr gut"]; if(p>=75)return[2,"gut"]; if(p>
 
 /* Die Prüferin heißt wie die gewählte ElevenLabs-Stimme (ihr Wunsch vom 03.11.2026); Standardstimme ist „Sarah“. */
 const PRUEFERIN_STANDARD = "Sarah";
-/* „Sarah - Mature, Reassuring“ → „Sarah“ */
-function stimmenVorname(n){ const m = String(n||"").match(/^[\p{L}][\p{L}'-]{0,30}/u); return m ? m[0] : ""; }
+/* „Sarah - Mature, Reassuring“ → „Sarah“ · „Monsieur Zika“ → „Monsieur Zika“ · „Essai Claire“ → „Claire“ */
+function stimmenName(n){ return String(n||"").split(/\s+[-—–(|]\s*|\s*\(/)[0].replace(/^Essai\s+/i, "").trim().slice(0, 40); }
+const stimmenVorname = stimmenName;
+/* Prüferin oder Prüfer — je nach Stimme */
+function rolle(p){ p = typeof p === "string" ? { name: p } : (p || {}); const m = !!p.m; return { name: p.name || PRUEFERIN_STANDARD, m, pruef: m ? "Prüfer" : "Prüferin", paed: m ? "Pflegepädagoge" : "Pflegepädagogin", ihr: m ? "Ihr" : "Ihre" }; }
 
 const BAUSTELLEN = "1 Kasus, 2 Genus, 3 Verbstellung, 4 falsche Freunde, 5 Komposita, 6 Siezen, 7 feste Präpositionen";
 
 function prueferPrompt(ex, antworten, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Pflegepädagogin und Prüferin in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW), und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.paed} und ${R.pruef} in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW), und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
 
 REGELN
 - Bewerte jede Aufgabe NUR am Erwartungshorizont unten. Fachlich gleichwertige Antworten, die dasselbe meinen, zählen (andere Wörter, Stichpunkte sind erlaubt). Erfinde keine zusätzlichen Anforderungen und kein Fachwissen außerhalb des Erwartungshorizonts.
@@ -68,8 +71,8 @@ function planungText(planung){
 }
 
 function oralRules(o, notizen, planung, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Pflegepädagogin und Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.paed} und ${R.pruef} in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
 
 So prüfst du:
 - Sprich Deutsch, freundlich und sachlich, siezen. Kurze, klare Sätze (B1).
@@ -95,12 +98,12 @@ Wenn eine Pflegeplanung vorliegt: Stelle im Lauf der Prüfung ein bis zwei Frage
 
 Deine Antworten werden vorgelesen: schreib nur gesprochene Sprache, keine Listen, keine Sternchen, keine Überschriften.
 
-Beginne jetzt: stell dich in einem Satz vor („Guten Tag, ich bin ${name}, Ihre Prüferin.“) und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
+Beginne jetzt: stell dich in einem Satz vor („Guten Tag, ich bin ${R.name}, ${R.ihr} ${R.pruef}.“) und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
 }
 
 function oralEvalPrompt(o, chat, planung, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.pruef} (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
 
 FALL: ${o.fall.join(" ")}
 
@@ -111,5 +114,5 @@ PFLEGEPLANUNG DER KANDIDATIN:
 ${planungText(planung)}
 
 GESPRÄCH:
-${(chat||[]).slice(-60).map(m => (m.role==="assistant"?name + " (Prüferin): ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
+${(chat||[]).slice(-60).map(m => (m.role==="assistant"?R.name + " (" + R.pruef + "): ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
 }

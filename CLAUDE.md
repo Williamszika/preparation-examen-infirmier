@@ -72,7 +72,7 @@ ohne sie scheiterte „Install dependencies“.
 
 Erst *„utiliser Agnes comme professeur et une voix ElevenLabs“*, dann am selben Tag: *„changer le nom, et mettre le nom
 de la voix et rendre la voix audible et normale, pas trop rapide“*. Deshalb: **Die Prüferin heißt wie die gewählte
-ElevenLabs-Stimme** (Vorname aus dem Stimmennamen, `stimmenVorname`; Standard **Sarah**). Alle Prompts bekommen den Namen als
+ElevenLabs-Stimme** (Name vor „ - “, „Essai “ weg: `stimmenName`; Standard **Sarah**). Männliche Stimme (Label `male` oder „Monsieur/Herr …“) → **„Prüfer“, „Pflegepädagoge“, „Ihr“** (`rolle()`). Am 03.11.2026 gewählt: **„Monsieur Zika“** (`jVohdE5iF39GmwcbV6cV`, ihre eigene Stimme in ElevenLabs). Alle Prompts bekommen den Namen als
 Parameter (`PRUEFERIN_STANDARD` in `app/prompts.js`). Stimme ruhiger: `speed 0.88`, `stability 0.65`; Gerätestimme `rate .85`.
 
 **Schlüssel ohne Umgebungsvariablen:** Netlify erlaubte über das MCP keine Umgebungsvariablen (403). Deshalb trägt sie
@@ -89,3 +89,7 @@ Gespeichert im Blob-Store `einstellungen` (Schlüssel `config`), nie an den Brow
 | Stimme | Standard **Sarah** `EXAVITQu4vr4xnSDxMaL` (aus der Liste freier Stimmen in `cours-allemand/api/_lib/eleven.js`); sie kann in den Einstellungen eine andere wählen |
 
 Ohne ElevenLabs-Schlüssel liest die Stimme des Geräts vor und der 🎤-Knopf nutzt die Spracherkennung des Browsers.
+
+**Diagnose:** `GET /api/admin?test=ki&token=…` probiert die Modelle mit ihrem Anthropic-Schlüssel und nennt den Fehler.
+Am 03.11.2026: **401 invalid x-api-key** — der eingetragene Anthropic-Schlüssel ist ungültig; sie muss einen gültigen
+(`sk-ant-…`, console.anthropic.com) neu eintragen. Bis dahin stellt die Seite die Fragen aus dem Fall der Reihe nach.

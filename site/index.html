@@ -157,14 +157,17 @@ function note(p){ if(p>=90)return[1,"sehr gut"]; if(p>=75)return[2,"gut"]; if(p>
 
 /* Die Prüferin heißt wie die gewählte ElevenLabs-Stimme (ihr Wunsch vom 03.11.2026); Standardstimme ist „Sarah“. */
 const PRUEFERIN_STANDARD = "Sarah";
-/* „Sarah - Mature, Reassuring“ → „Sarah“ */
-function stimmenVorname(n){ const m = String(n||"").match(/^[\p{L}][\p{L}'-]{0,30}/u); return m ? m[0] : ""; }
+/* „Sarah - Mature, Reassuring“ → „Sarah“ · „Monsieur Zika“ → „Monsieur Zika“ · „Essai Claire“ → „Claire“ */
+function stimmenName(n){ return String(n||"").split(/\s+[-—–(|]\s*|\s*\(/)[0].replace(/^Essai\s+/i, "").trim().slice(0, 40); }
+const stimmenVorname = stimmenName;
+/* Prüferin oder Prüfer — je nach Stimme */
+function rolle(p){ p = typeof p === "string" ? { name: p } : (p || {}); const m = !!p.m; return { name: p.name || PRUEFERIN_STANDARD, m, pruef: m ? "Prüfer" : "Prüferin", paed: m ? "Pflegepädagoge" : "Pflegepädagogin", ihr: m ? "Ihr" : "Ihre" }; }
 
 const BAUSTELLEN = "1 Kasus, 2 Genus, 3 Verbstellung, 4 falsche Freunde, 5 Komposita, 6 Siezen, 7 feste Präpositionen";
 
 function prueferPrompt(ex, antworten, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Pflegepädagogin und Prüferin in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW), und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.paed} und ${R.pruef} in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW), und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
 
 REGELN
 - Bewerte jede Aufgabe NUR am Erwartungshorizont unten. Fachlich gleichwertige Antworten, die dasselbe meinen, zählen (andere Wörter, Stichpunkte sind erlaubt). Erfinde keine zusätzlichen Anforderungen und kein Fachwissen außerhalb des Erwartungshorizonts.
@@ -219,8 +222,8 @@ function planungText(planung){
 }
 
 function oralRules(o, notizen, planung, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Pflegepädagogin und Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.paed} und ${R.pruef} in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
 
 So prüfst du:
 - Sprich Deutsch, freundlich und sachlich, siezen. Kurze, klare Sätze (B1).
@@ -246,12 +249,12 @@ Wenn eine Pflegeplanung vorliegt: Stelle im Lauf der Prüfung ein bis zwei Frage
 
 Deine Antworten werden vorgelesen: schreib nur gesprochene Sprache, keine Listen, keine Sternchen, keine Überschriften.
 
-Beginne jetzt: stell dich in einem Satz vor („Guten Tag, ich bin ${name}, Ihre Prüferin.“) und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
+Beginne jetzt: stell dich in einem Satz vor („Guten Tag, ich bin ${R.name}, ${R.ihr} ${R.pruef}.“) und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
 }
 
 function oralEvalPrompt(o, chat, planung, name){
-  name = name || PRUEFERIN_STANDARD;
-  return `Du bist ${name}, Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
+  const R = rolle(name);
+  return `Du bist ${R.name}, ${R.pruef} (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
 
 FALL: ${o.fall.join(" ")}
 
@@ -262,7 +265,7 @@ PFLEGEPLANUNG DER KANDIDATIN:
 ${planungText(planung)}
 
 GESPRÄCH:
-${(chat||[]).slice(-60).map(m => (m.role==="assistant"?name + " (Prüferin): ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
+${(chat||[]).slice(-60).map(m => (m.role==="assistant"?R.name + " (" + R.pruef + "): ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
 }
 
 /* Übungsseite Examen Pflege. MODE "artifact" = claude.ai (db + sample), MODE "public" = Netlify (/api/…). */
@@ -276,6 +279,7 @@ const OR = Object.fromEntries((DATA.muendlich||[]).map(e => [e.id, e]));
 const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pName = () => S.pname || PRUEFERIN_STANDARD;
+const pRolle = () => rolle({ name: pName(), m: !!S.pm });
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 /* Stimme der Prüferin: ElevenLabs über /api/tts (öffentliche Seite), sonst die Stimme des Geräts */
 const AUDIO = { el: null, url: null };
@@ -352,19 +356,19 @@ const ArtifactB = {
   },
   async korrigieren(ex, v){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(prueferPrompt(ex, v.antworten, pName()), { modelTier:"complex", cache:false });
-    return auswerten(ex, r, pName() + " (Prüferin)");
+    const r = await this.sample.json(prueferPrompt(ex, v.antworten, pRolle()), { modelTier:"complex", cache:false });
+    return auswerten(ex, r, pName() + " (" + pRolle().pruef + ")");
   },
   async pruefer(o, st, onText){
     if(!this.sample) throw { code:"no_ai" };
-    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung, pName())}, ...st.chat.slice(-30)];
+    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung, pRolle())}, ...st.chat.slice(-30)];
     if(turns[turns.length-1].role !== "user") turns.push({role:"user", content:"(weiter)"});
     const { text } = await this.sample(turns, { cache:false, onText: ({text}) => onText(text) });
     return text;
   },
   async oralEval(o, st){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung, pName()), { modelTier:"complex", cache:false });
+    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung, pRolle()), { modelTier:"complex", cache:false });
     if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + (st.sid || Date.now())).set({ fall:o.id, start:st.vorbStart||st.pStart||null, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
     return r;
   },
@@ -384,7 +388,7 @@ const ApiB = {
   async post(path, body){ return this.call(path, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) }); },
   async init(){
     S.name = LS.get("examen-name") || ""; S.ki = true; S.owner = !!LS.get("examen-admin");
-    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; if(st.name) S.pname = st.name; }catch{}
+    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; if(st.name) S.pname = st.name; S.pm = !!st.m; }catch{}
     S.uid = S.name ? await uidAusName(S.name) : null;
     S.docs = localAll();
     if(S.uid) await this.reload();
@@ -770,7 +774,7 @@ function renderOral(app, o){
   const speak = t => sprechen(t);
   const offlineFrage = () => {
     const gestellt = st.chat.filter(m => m.role === "assistant").length;
-    if(gestellt === 0) return "Guten Tag, ich bin " + pName() + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
+    if(gestellt === 0) return "Guten Tag, ich bin " + pName() + ", " + pRolle().ihr + " " + pRolle().pruef + ". Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
     const hatPlan = (st.planung||[]).some(r => r.p||r.m);
     if(hatPlan && gestellt === 1) return "Sie haben eine Pflegeplanung vorbereitet. Welches Pflegeproblem hat für Sie Vorrang, und wie begründen Sie Ihre wichtigste Maßnahme?";
     const f = o.fragen[gestellt - (hatPlan ? 2 : 1)];
@@ -887,19 +891,19 @@ function renderResults(app){
 function zeigeEinstellungen(c){
   $("#cfgstate").innerHTML = `<span class="pill ${c.ki?"done":"wait"}">${c.ki ? esc(pName()) + " korrigiert selbst ✓" : "Korrektur: noch aus"}</span> <span class="pill ${c.stimme?"done":"wait"}">${c.stimme ? "Stimme ✓" : "Stimme: aus"}</span>${c.stimmenFehler ? ` <span class="muted">Stimmenliste nicht geladen (${esc(c.stimmenFehler)})</span>` : ""}`;
   const sel = $("#k-voice"); const liste = (c.stimmen && c.stimmen.length) ? c.stimmen : [{ id: c.stimmeId, name: "Sarah (Standard)", info: "" }];
-  sel.innerHTML = liste.map(v => `<option data-name="${esc(v.name)}" value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
-  S.stimme = !!c.stimme; S.kiServer = !!c.ki; if(c.name) S.pname = c.name;
+  sel.innerHTML = liste.map(v => `<option data-name="${esc(v.name)}" data-gender="${esc(v.gender||"")}" value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
+  S.stimme = !!c.stimme; S.kiServer = !!c.ki; if(c.name) S.pname = c.name; S.pm = !!c.m;
 }
 async function einstellungenLaden(){
   const tok = LS.get("examen-admin") || "";
   try{ zeigeEinstellungen(await ApiB.call("/api/admin?einstellungen=1&token=" + encodeURIComponent(tok))); }catch(e){ $("#cfgstate").textContent = "Konnte die Einstellungen nicht laden (" + (e.code||"Fehler") + ")."; }
   const senden = async ein => { try{ zeigeEinstellungen(await ApiB.post("/api/admin", { token: tok, einstellungen: ein })); flash("Gespeichert."); }catch(e){ flash("Nicht gespeichert (" + (e.code||"Fehler") + ")."); } };
-  $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "" };
+  $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "", elevenVoiceGender: opt ? opt.dataset.gender || "" : "" };
     const a = $("#k-ant").value.trim(), el = $("#k-el").value.trim(); if(a) ein.anthropicKey = a; if(el) ein.elevenKey = el;
     await senden(ein); $("#k-ant").value = ""; $("#k-el").value = ""; };
   $("#del-ant").onclick = () => senden({ anthropicKey: "" });
   $("#del-el").onclick = () => senden({ elevenKey: "" });
-  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin " + stimmenVorname($("#k-voice").selectedOptions[0]?.dataset.name || pName()) + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
+  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin " + stimmenName($("#k-voice").selectedOptions[0]?.dataset.name || pName()) + ". Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
 }
 
 /* ---------- Abgaben (Besitzerin) ---------- */

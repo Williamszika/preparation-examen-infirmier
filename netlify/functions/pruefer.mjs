@@ -1,4 +1,4 @@
-import { okUid, bad, body, cleanChat, claudeText, MODEL_GESPRAECH, kiAn, prueferinName } from "../lib/common.mjs";
+import { okUid, bad, body, cleanChat, claudeText, MODEL_GESPRAECH, kiAn, prueferin } from "../lib/common.mjs";
 import { DATA, oralRules } from "../lib/shared.mjs";
 
 export default async (req) => {
@@ -8,7 +8,7 @@ export default async (req) => {
   if(!o) return bad("Fall unbekannt");
   if(!(await kiAn())) return bad("ki_aus", 503);
   const chat = cleanChat(bd.chat);
-  const messages = cleanChat([{ role: "user", content: oralRules(o, bd.notizen, bd.planung, await prueferinName()) }, ...chat]);
+  const messages = cleanChat([{ role: "user", content: oralRules(o, bd.notizen, bd.planung, await prueferin()) }, ...chat]);
   if(messages[messages.length - 1].role !== "user") messages.push({ role: "user", content: "(weiter)" });
   try{
     const text = await claudeText(messages, { model: MODEL_GESPRAECH(), max_tokens: 700 });

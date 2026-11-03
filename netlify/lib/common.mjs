@@ -36,7 +36,7 @@ export async function config(frisch){
 export async function configSetzen(neu){
   const alt = await config(true);
   const c = { ...alt };
-  for(const k of ["anthropicKey", "elevenKey", "elevenVoice", "elevenVoiceName"]){
+  for(const k of ["anthropicKey", "elevenKey", "elevenVoice", "elevenVoiceName", "elevenVoiceMale"]){
     if(typeof neu[k] !== "string") continue;
     const v = neu[k].trim();
     if(v) c[k] = v.slice(0, 300); else delete c[k];
@@ -50,7 +50,27 @@ export const stimmeAn = async () => !!(process.env.ELEVENLABS_API_KEY || (await 
 export const elevenKey = async () => process.env.ELEVENLABS_API_KEY || (await config()).elevenKey || "";
 /* Stimme der Prüferin: Standard „Sarah“ (EXAVITQu4vr4xnSDxMaL, aus der Liste freier Stimmen in cours-allemand/api/_lib/eleven.js) */
 export const AGNES_STANDARD = "EXAVITQu4vr4xnSDxMaL";
-export const prueferinName = async () => { const c = await config(); return (c.elevenVoice && c.elevenVoiceName) || "Sarah"; };
+const nameAus = n => String(n||"").split(/\s+[-—–(|]\s*|\s*\(/)[0].replace(/^Essai\s+/i, "").trim().slice(0, 40);
+const istMann = (name, gender) => gender === "male" || /^(Monsieur|Herr|Mr\.?)\s/i.test(name || "");
+/* Name und Geschlecht der Prüferin/des Prüfers = die gewählte Stimme. Rückgabe {name, m}. */
+export const prueferin = async () => {
+  const c = await config();
+  if(!c.elevenVoice) return { name: "Sarah", m: false };
+  if(c.elevenVoiceName && c.elevenVoiceMale !== undefined) return { name: c.elevenVoiceName, m: c.elevenVoiceMale === "1" };
+  try{
+    const k = await elevenKey();
+    const r = await fetch("https://api.elevenlabs.io/v1/voices/" + encodeURIComponent(c.elevenVoice), { headers: { "xi-api-key": k } });
+    if(r.ok){ const j = await r.json(); const name = nameAus(j.name); if(name){ const m = istMann(name, j.labels && j.labels.gender); await configSetzen({ elevenVoiceName: name, elevenVoiceMale: m ? "1" : "0" }); return { name, m }; } }
+  }catch(e){ console.error(e); }
+  return { name: c.elevenVoiceName || "Sarah", m: false };
+};
+export const prueferinName = async () => (await prueferin()).name;
+export { nameAus, istMann };
+/* Kurztest der KI für die Besitzerin: welches Modell antwortet, und wenn nicht, warum */
+export async function kiTest(model){
+  try{ const t = await claudeText("Antworte nur mit: ok", { model, max_tokens: 5 }); return { model, ok: true, text: t }; }
+  catch(e){ return { model, ok: false, fehler: String((e && (e.message || e.error?.message)) || e).slice(0, 300), status: e && e.status }; }
+}
 export const agnesVoice = async () => (await config()).elevenVoice || process.env.ELEVENLABS_VOICE_ID || AGNES_STANDARD;
 
 export async function claudeText(prompt, { model, max_tokens }){

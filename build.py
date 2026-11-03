@@ -35,6 +35,6 @@ pub = ('<!doctype html>\n<html lang="de"><head><meta charset="utf-8">'
 (R / "site/index.html").write_text(pub, encoding="utf-8")
 (R / "netlify/lib/shared.mjs").write_text(
     "// automatisch erzeugt von build.py — nicht von Hand ändern\n" + shared +
-    "\nexport const DATA = " + js + ";\nexport { note, prueferPrompt, auswerten, oralRules, oralEvalPrompt, PRUEFERIN_STANDARD, stimmenVorname };\n",
+    "\nexport const DATA = " + js + ";\nexport { note, prueferPrompt, auswerten, oralRules, oralEvalPrompt, PRUEFERIN_STANDARD, stimmenVorname, stimmenName, rolle };\n",
     encoding="utf-8")
 print(f"{len(pr)} Klausur(en), {len(data['muendlich'])} mündliche(r) Fall/Fälle → app/index.html, site/index.html, netlify/lib/shared.mjs")
