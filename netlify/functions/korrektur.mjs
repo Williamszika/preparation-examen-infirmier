@@ -1,4 +1,4 @@
-import { store, okUid, okKey, body, claudeText, parseJson, MODEL_KORREKTUR, kiAn } from "../lib/common.mjs";
+import { store, okUid, okKey, body, claudeText, parseJson, MODEL_KORREKTUR, kiAn, prueferinName } from "../lib/common.mjs";
 import { DATA, prueferPrompt, auswerten } from "../lib/shared.mjs";
 
 /* Hintergrundfunktion: die Seite bekommt sofort 202 und fragt danach /api/versuche ab. */
@@ -14,8 +14,8 @@ export default async (req) => {
   d.endgueltig = true;
   if(!(await kiAn())){ delete d.korrekturFehler; d.korrekturWartet = Date.now(); d.geaendert = Date.now(); await s.setJSON(k, d); return; }
   try{
-    const text = await claudeText(prueferPrompt(ex, d.antworten), { model: MODEL_KORREKTUR(), max_tokens: 12000 });
-    d.korrektur = auswerten(ex, parseJson(text), "Claude (Prüferin)");
+    const text = await claudeText(prueferPrompt(ex, d.antworten, await prueferinName()), { model: MODEL_KORREKTUR(), max_tokens: 12000 });
+    d.korrektur = auswerten(ex, parseJson(text), (await prueferinName()) + " (Prüferin)");
     delete d.korrekturFehler;
   }catch(e){
     console.error(e);

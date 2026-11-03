@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice } from "../lib/common.mjs";
-import { DATA, auswerten } from "../lib/shared.mjs";
+import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice, prueferinName } from "../lib/common.mjs";
+import { DATA, auswerten, stimmenVorname } from "../lib/shared.mjs";
 
 /* SHA-256 des Zugangsschlüssels der Besitzerin (der Schlüssel selbst steht nicht im Repo). ADMIN_TOKEN als Umgebungsvariable geht auch. */
 const HASH = "87d0b7961b66c8259fa27100b7f5635cb00537f1f22e2dc8736e08592284302f";
@@ -22,7 +22,9 @@ export default async (req) => {
      {token, uid, oral:"m1-<sid>", bewertung:{kb, note, …}}                                → mündlich */
   const bd = await body(req);
   if(bd && erlaubt(bd.token) && bd.einstellungen && typeof bd.einstellungen === "object"){
-    await configSetzen(bd.einstellungen); return Response.json(await einstellungen());
+    const ein = { ...bd.einstellungen };
+    if(typeof ein.elevenVoiceName === "string") ein.elevenVoiceName = stimmenVorname(ein.elevenVoiceName);
+    await configSetzen(ein); return Response.json(await einstellungen());
   }
   if(bd && erlaubt(bd.token) && okUid(bd.uid) && bd.loeschen && (okKey(bd.key) || bd.oral)){
     await s.delete(bd.uid + "/" + (bd.oral ? "oral-" + String(bd.oral).replace(/[^a-z0-9-]/gi, "") : bd.key)); return Response.json({ ok: true });
@@ -48,7 +50,7 @@ export default async (req) => {
 /* Zustand der Einstellungen — ohne die Schlüssel selbst */
 async function einstellungen(){
   const c = await ladeConfig(true);
-  const out = { ki: await kiAn(), stimme: await stimmeAn(), stimmeId: await agnesVoice(), anthropicGesetzt: !!c.anthropicKey, elevenGesetzt: !!c.elevenKey, stimmen: [] };
+  const out = { ki: await kiAn(), stimme: await stimmeAn(), stimmeId: await agnesVoice(), name: await prueferinName(), anthropicGesetzt: !!c.anthropicKey, elevenGesetzt: !!c.elevenKey, stimmen: [] };
   const k = await elevenKey();
   if(k){ try{ const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": k } }); if(r.ok){ const j = await r.json(); out.stimmen = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name, info: [v.labels?.gender, v.labels?.accent, v.labels?.age].filter(Boolean).join(", ") })).slice(0, 80); } else out.stimmenFehler = r.status; }catch(e){ out.stimmenFehler = "netz"; } }
   return out;

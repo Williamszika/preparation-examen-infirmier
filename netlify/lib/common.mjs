@@ -36,7 +36,7 @@ export async function config(frisch){
 export async function configSetzen(neu){
   const alt = await config(true);
   const c = { ...alt };
-  for(const k of ["anthropicKey", "elevenKey", "elevenVoice"]){
+  for(const k of ["anthropicKey", "elevenKey", "elevenVoice", "elevenVoiceName"]){
     if(typeof neu[k] !== "string") continue;
     const v = neu[k].trim();
     if(v) c[k] = v.slice(0, 300); else delete c[k];
@@ -48,8 +48,9 @@ const anthropicKey = async () => process.env.ANTHROPIC_API_KEY || (await config(
 export const kiAn = async () => !!(process.env.ANTHROPIC_AUTH_TOKEN || await anthropicKey());
 export const stimmeAn = async () => !!(process.env.ELEVENLABS_API_KEY || (await config()).elevenKey);
 export const elevenKey = async () => process.env.ELEVENLABS_API_KEY || (await config()).elevenKey || "";
-/* Agnes' Stimme: Standard „Sarah“ (EXAVITQu4vr4xnSDxMaL, aus der Liste freier Stimmen in cours-allemand/api/_lib/eleven.js) */
+/* Stimme der Prüferin: Standard „Sarah“ (EXAVITQu4vr4xnSDxMaL, aus der Liste freier Stimmen in cours-allemand/api/_lib/eleven.js) */
 export const AGNES_STANDARD = "EXAVITQu4vr4xnSDxMaL";
+export const prueferinName = async () => { const c = await config(); return (c.elevenVoice && c.elevenVoiceName) || "Sarah"; };
 export const agnesVoice = async () => (await config()).elevenVoice || process.env.ELEVENLABS_VOICE_ID || AGNES_STANDARD;
 
 export async function claudeText(prompt, { model, max_tokens }){

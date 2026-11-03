@@ -8,8 +8,9 @@ const EX = Object.fromEntries((DATA.pruefungen||[]).map(e => [e.id, e]));
 const OR = Object.fromEntries((DATA.muendlich||[]).map(e => [e.id, e]));
 const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const pName = () => S.pname || PRUEFERIN_STANDARD;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-/* Agnes' Stimme: ElevenLabs über /api/tts (öffentliche Seite), sonst die Stimme des Geräts */
+/* Stimme der Prüferin: ElevenLabs über /api/tts (öffentliche Seite), sonst die Stimme des Geräts */
 const AUDIO = { el: null, url: null };
 function stilleWav(){ // 0,1 s Stille als WAV, um den Lautsprecher im Klick freizuschalten
   const n = 800, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
@@ -32,10 +33,10 @@ async function sprechen(text){
       if(!r.ok) throw new Error(r.status);
       const b = await r.blob(); if(AUDIO.url) URL.revokeObjectURL(AUDIO.url); AUDIO.url = URL.createObjectURL(b);
       if(!AUDIO.el){ AUDIO.el = new Audio(); AUDIO.el.setAttribute("playsinline", ""); }
-      AUDIO.el.src = AUDIO.url; await AUDIO.el.play(); return;
+      AUDIO.el.src = AUDIO.url; AUDIO.el.volume = 1; AUDIO.el.playbackRate = 1; await AUDIO.el.play(); return;
     }catch(e){ console.warn("tts", e); }
   }
-  try{ const u = new SpeechSynthesisUtterance(t); u.lang = "de-DE"; u.rate = .92; speechSynthesis.speak(u); }catch{}
+  try{ const u = new SpeechSynthesisUtterance(t); u.lang = "de-DE"; u.rate = .85; u.volume = 1; speechSynthesis.speak(u); }catch{}
 }
 function stummschalten(){ try{ speechSynthesis.cancel(); }catch{} try{ AUDIO.el && AUDIO.el.pause(); }catch{} }
 
@@ -84,19 +85,19 @@ const ArtifactB = {
   },
   async korrigieren(ex, v){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(prueferPrompt(ex, v.antworten), { modelTier:"complex", cache:false });
-    return auswerten(ex, r, "Agnes (Prüferin)");
+    const r = await this.sample.json(prueferPrompt(ex, v.antworten, pName()), { modelTier:"complex", cache:false });
+    return auswerten(ex, r, pName() + " (Prüferin)");
   },
   async pruefer(o, st, onText){
     if(!this.sample) throw { code:"no_ai" };
-    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung)}, ...st.chat.slice(-30)];
+    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung, pName())}, ...st.chat.slice(-30)];
     if(turns[turns.length-1].role !== "user") turns.push({role:"user", content:"(weiter)"});
     const { text } = await this.sample(turns, { cache:false, onText: ({text}) => onText(text) });
     return text;
   },
   async oralEval(o, st){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung), { modelTier:"complex", cache:false });
+    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung, pName()), { modelTier:"complex", cache:false });
     if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + (st.sid || Date.now())).set({ fall:o.id, start:st.vorbStart||st.pStart||null, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
     return r;
   },
@@ -116,7 +117,7 @@ const ApiB = {
   async post(path, body){ return this.call(path, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) }); },
   async init(){
     S.name = LS.get("examen-name") || ""; S.ki = true; S.owner = !!LS.get("examen-admin");
-    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; }catch{}
+    try{ const st = await this.call("/api/status"); S.stimme = !!st.stimme; S.kiServer = !!st.ki; if(st.name) S.pname = st.name; }catch{}
     S.uid = S.name ? await uidAusName(S.name) : null;
     S.docs = localAll();
     if(S.uid) await this.reload();
@@ -444,7 +445,7 @@ function renderOralVerlauf(app, d){
     <details><summary class="lbl" style="cursor:pointer">Fallsituation</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></details>
     ${d.notizen ? `<section class="stack"><span class="lbl">Deine Notizen</span><p style="white-space:pre-wrap">${esc(d.notizen)}</p></section>` : ""}
     ${planungHtml(d.planung) ? `<section class="stack"><span class="lbl">Deine Pflegeplanung</span>${planungHtml(d.planung)}</section>` : ""}
-    <section class="stack"><span class="lbl">Das Gespräch</span><div class="chat">${(d.chat||[]).map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?"Agnes":"Du"}</span>${esc(String(m.content).replace("[ENDE]",""))}</div>`).join("")}</div></section>
+    <section class="stack"><span class="lbl">Das Gespräch</span><div class="chat">${(d.chat||[]).map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?esc(pName()):"Du"}</span>${esc(String(m.content).replace("[ENDE]",""))}</div>`).join("")}</div></section>
     ${d.bewertung ? oralEvalHtml(o, d.bewertung) : `<p class="note ${d.status==="abgebrochen"?"warn":"info"}">${d.status==="abgebrochen" ? "Dieses Gespräch wurde nicht zu Ende geführt." : "Die Bewertung ist noch nicht da. Sie erscheint hier, sobald die Prüferin fertig ist."}</p>`}
     ${horizontHtml(o)}
     <div class="row"><a class="btn pri" style="text-decoration:none" href="#${o.id}">Diesen Fall noch einmal üben</a><a href="#ergebnisse" class="muted">← zu den Ergebnissen</a></div>
@@ -491,18 +492,18 @@ function renderOral(app, o){
     <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}${(st.planung||[]).some(r => r.p||r.z||r.m||r.b) ? `<div class="tbl" style="margin-top:8px"><table><thead><tr><th>Pflegeproblem</th><th>Pflegeziele</th><th>Pflegemaßnahmen</th><th>Begründungen</th></tr></thead><tbody>${st.planung.filter(r => r.p||r.z||r.m||r.b).map(r => `<tr><td style="white-space:pre-wrap">${esc(r.p)}</td><td style="white-space:pre-wrap">${esc(r.z)}</td><td style="white-space:pre-wrap">${esc(r.m)}</td><td style="white-space:pre-wrap">${esc(r.b)}</td></tr>`).join("")}</tbody></table></div>` : ""}</details>
     <div class="chat" id="chat"></div>
     ${ended ? "" : `<label class="lbl" for="ans">Deine Antwort</label><textarea id="ans" style="min-height:100px" placeholder="Schreib oder diktiere deine Antwort …"></textarea>
-    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 Agnes noch einmal hören</button>${MODE === "public" && ((S.stimme && window.MediaRecorder) || SR) ? `<button class="btn ghost" id="mic" type="button">🎤 Sprechen</button>` : ""}<button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
+    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 ${esc(pName())} noch einmal hören</button>${MODE === "public" && ((S.stimme && window.MediaRecorder) || SR) ? `<button class="btn ghost" id="mic" type="button">🎤 Sprechen</button>` : ""}<button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
     <div id="eval" class="stack"></div>
     <div class="row"><button class="btn ghost" id="reset">Fall neu beginnen</button><a href="#muendlich" class="muted">← zurück</a></div>
   </article>`;
   const chat = $("#chat");
-  const draw = () => { chat.innerHTML = st.chat.map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?"Agnes":"Du"}</span>${esc(m.content.replace("[ENDE]",""))}</div>`).join(""); };
+  const draw = () => { chat.innerHTML = st.chat.map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?esc(pName()):"Du"}</span>${esc(m.content.replace("[ENDE]",""))}</div>`).join(""); };
   draw();
   const upd = () => { $("#dauer").textContent = fmtT(Date.now() - st.pStart) + " min"; }; upd(); tick = setInterval(upd, 1000);
   const speak = t => sprechen(t);
   const offlineFrage = () => {
     const gestellt = st.chat.filter(m => m.role === "assistant").length;
-    if(gestellt === 0) return "Guten Tag, ich bin Agnes, Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
+    if(gestellt === 0) return "Guten Tag, ich bin " + pName() + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
     const hatPlan = (st.planung||[]).some(r => r.p||r.m);
     if(hatPlan && gestellt === 1) return "Sie haben eine Pflegeplanung vorbereitet. Welches Pflegeproblem hat für Sie Vorrang, und wie begründen Sie Ihre wichtigste Maßnahme?";
     const f = o.fragen[gestellt - (hatPlan ? 2 : 1)];
@@ -510,7 +511,7 @@ function renderOral(app, o){
   };
   const ask = async () => {
     if(st.offline){ const text = offlineFrage(); st.chat.push({role:"assistant", content:text}); persist(); draw(); speak(text); if(text.includes("[ENDE]")) bewerten(); return; }
-    const bubble = document.createElement("div"); bubble.className = "msg p"; bubble.innerHTML = `<span class="who">Agnes</span><span>…</span>`; chat.append(bubble);
+    const bubble = document.createElement("div"); bubble.className = "msg p"; bubble.innerHTML = `<span class="who">${esc(pName())}</span><span>…</span>`; chat.append(bubble);
     $("#send") && ($("#send").disabled = true);
     try{
       const text = await B.pruefer(o, st, t => bubble.lastChild.textContent = t.replace("[ENDE]",""));
@@ -554,7 +555,7 @@ function renderOral(app, o){
         rec.ondataavailable = ev => { if(ev.data && ev.data.size) teile.push(ev.data); };
         rec.onstop = async () => {
           const blob = new Blob(teile, { type: rec.mimeType || typ || "audio/webm" });
-          mic.disabled = true; mic.textContent = "… Agnes hört zu";
+          mic.disabled = true; mic.textContent = "… " + pName() + " hört zu";
           try{
             const r = await fetch("/api/stt", { method:"POST", headers:{ "content-type": blob.type.split(";")[0] || "audio/webm" }, body: blob });
             const j = await r.json(); if(!r.ok) throw new Error(j.error || r.status);
@@ -617,21 +618,21 @@ function renderResults(app){
 
 /* ---------- Einstellungen (nur öffentliche Seite) ---------- */
 function zeigeEinstellungen(c){
-  $("#cfgstate").innerHTML = `<span class="pill ${c.ki?"done":"wait"}">${c.ki ? "Agnes korrigiert selbst ✓" : "Korrektur: noch aus"}</span> <span class="pill ${c.stimme?"done":"wait"}">${c.stimme ? "Stimme ✓" : "Stimme: aus"}</span>${c.stimmenFehler ? ` <span class="muted">Stimmenliste nicht geladen (${esc(c.stimmenFehler)})</span>` : ""}`;
+  $("#cfgstate").innerHTML = `<span class="pill ${c.ki?"done":"wait"}">${c.ki ? esc(pName()) + " korrigiert selbst ✓" : "Korrektur: noch aus"}</span> <span class="pill ${c.stimme?"done":"wait"}">${c.stimme ? "Stimme ✓" : "Stimme: aus"}</span>${c.stimmenFehler ? ` <span class="muted">Stimmenliste nicht geladen (${esc(c.stimmenFehler)})</span>` : ""}`;
   const sel = $("#k-voice"); const liste = (c.stimmen && c.stimmen.length) ? c.stimmen : [{ id: c.stimmeId, name: "Sarah (Standard)", info: "" }];
-  sel.innerHTML = liste.map(v => `<option value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
-  S.stimme = !!c.stimme; S.kiServer = !!c.ki;
+  sel.innerHTML = liste.map(v => `<option data-name="${esc(v.name)}" value="${esc(v.id)}"${v.id===c.stimmeId?" selected":""}>${esc(v.name)}${v.info?" — "+esc(v.info):""}</option>`).join("");
+  S.stimme = !!c.stimme; S.kiServer = !!c.ki; if(c.name) S.pname = c.name;
 }
 async function einstellungenLaden(){
   const tok = LS.get("examen-admin") || "";
   try{ zeigeEinstellungen(await ApiB.call("/api/admin?einstellungen=1&token=" + encodeURIComponent(tok))); }catch(e){ $("#cfgstate").textContent = "Konnte die Einstellungen nicht laden (" + (e.code||"Fehler") + ")."; }
   const senden = async ein => { try{ zeigeEinstellungen(await ApiB.post("/api/admin", { token: tok, einstellungen: ein })); flash("Gespeichert."); }catch(e){ flash("Nicht gespeichert (" + (e.code||"Fehler") + ")."); } };
-  $("#cfg").onsubmit = async e => { e.preventDefault(); const ein = { elevenVoice: $("#k-voice").value };
+  $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "" };
     const a = $("#k-ant").value.trim(), el = $("#k-el").value.trim(); if(a) ein.anthropicKey = a; if(el) ein.elevenKey = el;
     await senden(ein); $("#k-ant").value = ""; $("#k-el").value = ""; };
   $("#del-ant").onclick = () => senden({ anthropicKey: "" });
   $("#del-el").onclick = () => senden({ elevenKey: "" });
-  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin Agnes, Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
+  $("#probe-stimme").onclick = () => { audioFreischalten(); sprechen("Guten Tag, ich bin " + stimmenVorname($("#k-voice").selectedOptions[0]?.dataset.name || pName()) + ", Ihre Prüferin. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht."); };
 }
 
 /* ---------- Abgaben (Besitzerin) ---------- */
@@ -643,10 +644,10 @@ async function renderAdmin(app){
   }
   if(MODE !== "public" && !S.owner){ app.innerHTML = `<p class="note warn" style="margin-top:16px">Diese Ansicht sieht nur die Besitzerin der Seite.</p>`; return; }
   app.innerHTML = `<section class="intro"><span class="lbl">Abgaben</span><h1>Alle Abgaben</h1><p class="muted">Die Arbeiten aller Personen, die die Seite benutzen.</p></section>
-    ${MODE === "public" ? `<form class="sheet" id="cfg" style="margin-bottom:16px"><h2>Einstellungen: Agnes</h2><p class="muted" style="font-size:.9rem">Die Schlüssel werden verschlüsselt auf dem Server gespeichert und nie wieder angezeigt. Ein leeres Feld lässt den alten Schlüssel stehen.</p><div id="cfgstate" class="muted">Lade …</div>
-      <label class="lbl" for="k-ant">Anthropic-Schlüssel (Agnes korrigiert und prüft selbst)</label><input id="k-ant" type="password" autocomplete="off" placeholder="sk-ant-…" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
-      <label class="lbl" for="k-el">ElevenLabs-Schlüssel (Agnes' Stimme, Spracherkennung)</label><input id="k-el" type="password" autocomplete="off" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
-      <label class="lbl" for="k-voice">Agnes' Stimme</label><select id="k-voice" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)"></select>
+    ${MODE === "public" ? `<form class="sheet" id="cfg" style="margin-bottom:16px"><h2>Einstellungen: Prüferin und Stimme</h2><p class="muted" style="font-size:.9rem">Die Prüferin heißt wie die Stimme, die du wählst.</p><p class="muted" style="font-size:.9rem">Die Schlüssel werden verschlüsselt auf dem Server gespeichert und nie wieder angezeigt. Ein leeres Feld lässt den alten Schlüssel stehen.</p><div id="cfgstate" class="muted">Lade …</div>
+      <label class="lbl" for="k-ant">Anthropic-Schlüssel (die Prüferin korrigiert und prüft selbst)</label><input id="k-ant" type="password" autocomplete="off" placeholder="sk-ant-…" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+      <label class="lbl" for="k-el">ElevenLabs-Schlüssel (Stimme der Prüferin, Spracherkennung)</label><input id="k-el" type="password" autocomplete="off" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+      <label class="lbl" for="k-voice">Stimme und Name der Prüferin</label><select id="k-voice" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)"></select>
       <div class="row"><button class="btn pri">Speichern</button><button class="btn ghost" type="button" id="probe-stimme">Stimme anhören</button><button class="btn ghost" type="button" id="del-ant">Anthropic-Schlüssel löschen</button><button class="btn ghost" type="button" id="del-el">ElevenLabs-Schlüssel löschen</button></div></form>` : ""}
     <div id="adm" class="list"><p class="muted">Lade …</p></div>`;
   if(MODE === "public") einstellungenLaden();

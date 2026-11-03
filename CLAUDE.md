@@ -68,13 +68,15 @@ in einer Sitzung: Abgaben mit `GET /api/admin` holen, streng am Erwartungshorizo
 ausführen (vorher `python3 build.py`, `node_modules` nicht mit hochladen). Lockfile und `.nvmrc` (22) müssen bleiben —
 ohne sie scheiterte „Install dependencies“.
 
-## Agnes — die Prüferin (seit 03.11.2026)
+## Die Prüferin und ihre Stimme (seit 03.11.2026)
 
-Ihr Wunsch: *„utiliser Agnes comme professeur et une voix ElevenLabs“*. Die Prüferin heißt in allen Prompts, auf der
-Seite und in `PRUEFER.md` **Agnes** (Pflegepädagogin und Prüferin); Korrekturen tragen „Agnes (Prüferin)“.
+Erst *„utiliser Agnes comme professeur et une voix ElevenLabs“*, dann am selben Tag: *„changer le nom, et mettre le nom
+de la voix et rendre la voix audible et normale, pas trop rapide“*. Deshalb: **Die Prüferin heißt wie die gewählte
+ElevenLabs-Stimme** (Vorname aus dem Stimmennamen, `stimmenVorname`; Standard **Sarah**). Alle Prompts bekommen den Namen als
+Parameter (`PRUEFERIN_STANDARD` in `app/prompts.js`). Stimme ruhiger: `speed 0.88`, `stability 0.65`; Gerätestimme `rate .85`.
 
 **Schlüssel ohne Umgebungsvariablen:** Netlify erlaubte über das MCP keine Umgebungsvariablen (403). Deshalb trägt sie
-die Schlüssel selbst auf der Seite ein: Reiter **Abgaben** (Zugangsschlüssel) → **Einstellungen: Agnes** →
+die Schlüssel selbst auf der Seite ein: Reiter **Abgaben** (Zugangsschlüssel) → **Einstellungen: Prüferin und Stimme** →
 Anthropic-Schlüssel (Korrektur + mündliche Prüferin), ElevenLabs-Schlüssel (Stimme + Spracherkennung), Stimme wählen.
 Gespeichert im Blob-Store `einstellungen` (Schlüssel `config`), nie an den Browser zurückgegeben; Umgebungsvariablen
 `ANTHROPIC_API_KEY` / `ELEVENLABS_API_KEY` gingen vor, falls es sie gibt.
