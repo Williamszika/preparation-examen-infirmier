@@ -1,0 +1,39 @@
+{
+  "id": "probe", "probe": true, "tag": 0, "klausur": 0, "variante": "Probe", "dauerMin": 15,
+  "titel": "Probelauf: Atembeobachtung bei Frau Berger",
+  "person": "alter Mensch", "setting": "Pflegeheim",
+  "matrix": [{"kb": "I.1", "themen": ["CE 2b UE 5 Atembeobachtung", "CE 5 UE 5 Anatomie und Physiologie Atmung"]}],
+  "fall": [
+    "Frau Berger ist 84 Jahre alt und lebt seit zwei Jahren im Pflegeheim. Sie hat eine Herzerkrankung. Seit gestern bekommt sie gegen starke Schmerzen ein Opioid.",
+    "Heute Morgen ist sie sehr schläfrig und kaum ansprechbar. Ihre Tochter sagt bei der Übergabe: „Mama atmet so langsam. Ist das normal?“ Ihre Praxisanleiterin bittet Sie, Frau Berger heute genau zu beobachten."
+  ],
+  "aufgaben": [
+    {"nr": "1", "operator": "Nennen", "afb": "I", "kb": "I.1", "thema": "CE 5 UE 5 Anatomie und Physiologie Atmung", "punkte": 3,
+     "frage": "Nennen Sie die drei Faktoren, die für den Gasaustausch erforderlich sind.",
+     "erwartung": [
+       {"text": "Belüftung der Lunge (Ventilation)", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 6)"},
+       {"text": "Durchblutung der Lunge (Perfusion)", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 6)"},
+       {"text": "Transport von O₂ und CO₂", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 6)"}
+     ]},
+    {"nr": "2", "operator": "Erklären", "afb": "II", "kb": "I.1", "thema": "CE 5 UE 5 Anatomie und Physiologie Atmung", "punkte": 4,
+     "frage": "Erklären Sie, wie die Atmung gesteuert wird und wodurch der Atemantrieb stärker wird. Nennen Sie dabei zwei Auslöser.",
+     "erwartung": [
+       {"text": "Unbewusste Steuerung durch das Atemzentrum in der Medulla oblongata (verlängertes Mark); bewusst über das Großhirn beeinflussbar", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folien 3 und 8)"},
+       {"text": "Zellen an der Halsschlagader (A. carotis), an der Aorta und nahe dem Rückenmark melden den CO₂-Gehalt des Blutes: je höher, desto schneller die Atmung", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 3)"},
+       {"text": "Auslöser: sinkender Sauerstoffgehalt (z. B. im Gebirge) oder steigender Kohlendioxidgehalt", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 9)"},
+       {"text": "Auslöser: sinkender pH-Wert / Übersäuerung (z. B. Azidose bei diabetischem Koma)", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 9)"}
+     ],
+     "hinweis": "Zwei beliebige richtige Auslöser aus Folie 9 geben zusammen 2 Punkte."},
+    {"nr": "3", "operator": "Begründen", "afb": "III", "kb": "I.1", "thema": "CE 2b UE 5 Atembeobachtung", "punkte": 3,
+     "frage": "Begründen Sie mit zwei Argumenten aus dem Fall, warum bei Frau Berger eine gezielte Atembeobachtung erforderlich ist.",
+     "erwartung": [
+       {"text": "Sie bekommt ein Opioid; Opioide wirken atemdepressiv (dämpfen die Atmung) → Atembeobachtung erforderlich", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 10)"},
+       {"text": "Sie hat eine Herzerkrankung → gezielte Atembeobachtung mindestens einmal pro Dienst", "punkte": 1, "quelle": "Wissen/082-atembeobachtung.md (Folie 10)"},
+       {"text": "Begründung als Kette mit weil/deshalb und Bezug zu den Beobachtungen im Fall (schläfrig, langsame Atmung laut Tochter)", "punkte": 1, "quelle": "Operator Begründen: ressources/klausur-konventionen.md (Etude-Repo)"}
+     ]}
+  ],
+  "gesamtpunkte": 10,
+  "quellen": ["Etude-Repo: Wissen/082-atembeobachtung.md (aus PDFs/83-atembeobachtung-teil-1.pdf, I. Himmel 2025)", "Etude-Repo: ressources/klausur-konventionen.md"],
+  "luecken": [],
+  "fiktiv": ["Frau Berger, ihr Alter, ihre Tochter und die Situation sind für die Übung erfunden."]
+}

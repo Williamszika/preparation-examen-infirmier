@@ -1,0 +1,58 @@
+{
+  "_quelle": "matrix/matrix-schriftliches-examen-23-26.pdf (Matrix schriftliches Examen, Kurs 23-26, 5 Seiten). Wortlaut der CE/UE-Angaben wie im Original.",
+  "klausuren": [
+    {
+      "klausur": 1, "tag": 1,
+      "person": "alter Mensch", "setting": "Pflegeheim",
+      "varianten": {
+        "A": [
+          {"kb": "I.1 Die Pflege von Menschen aller Altersstufen verantwortlich planen, organisieren, gestalten, durchführen, steuern und evaluieren.", "themen": ["CE 1 UE 3 Pflegeprozess", "CE 7 UE 3 Erkrankungen des Bewegungsapparates, rheumatische Arthritis"]},
+          {"kb": "II.1 Kommunikation und Interaktion mit Menschen aller Altersstufen und ihren Bezugspersonen personen- und situationsbezogen gestalten und eine angemessene Information sicherstellen.", "themen": ["CE 5 UE 13 Beratung"]},
+          {"kb": "I.5 Menschen aller Altersstufen bei der Lebensgestaltung unterstützen, begleiten und beraten.", "themen": ["CE 5 UE 2 Modell der fördernden Prozesspflege von M. Krohwinkel", "CE 5 UE 2 Selbstpflegemodell von D. Orem"]},
+          {"kb": "I.6 Entwicklung und Autonomie in der Lebensspanne fördern", "themen": ["CE 5 UE 2 Modell der fördernden Prozesspflege von M. Krohwinkel"]},
+          {"kb": "IV Das eigene Handeln auf der Grundlage von Gesetzen, Verordnungen und ethischen Leitlinien reflektieren und begründen.", "themen": ["CE 5 UE 7 Betäubungsmittel", "CE 1 UE 3 Expertenstandards", "CE 5 UE 7 Schmerzen"]}
+        ],
+        "B": [
+          {"kb": "I.1 Die Pflege von Menschen aller Altersstufen verantwortlich planen, organisieren, gestalten, durchführen, steuern und evaluieren.", "themen": ["CE 8 UE 3 Begleitung im Sterbeprozess (Blockwoche)", "CE 2b UE 2 Mund- und Zahnpflege", "CE 7 UE 3 Basale Stimulation", "CE 2b UE 5 Atembeobachtung", "CE 2b UE 4 Obstipation und Obstipationsprophylaxe", "CE 5 UE 5 Anatomie und Physiologie Atmung"]},
+          {"kb": "II.1 Kommunikation und Interaktion mit Menschen aller Altersstufen und ihren Bezugspersonen personen- und situationsbezogen gestalten und eine angemessene Information sicherstellen.", "themen": ["CE 3 UE 2 Grundlagen der Kommunikation und Kommunikationsmodelle (Carl Rogers, Friedmann Schulz von Thun, Paul Watzlawick)"]},
+          {"kb": "I.5 Menschen aller Altersstufen bei der Lebensgestaltung unterstützen, begleiten und beraten.", "themen": ["CE 3 UE 2 Grundlagen der Kommunikation und Kommunikationsmodelle (Carl Rogers, Friedmann Schulz von Thun, Paul Watzlawick)"]},
+          {"kb": "I.6 Entwicklung und Autonomie in der Lebensspanne fördern", "themen": ["CE 5 UE 1 Ethische Prinzipien (Medizinethik)"]},
+          {"kb": "IV Das eigene Handeln auf der Grundlage von Gesetzen, Verordnungen und ethischen Leitlinien reflektieren und begründen.", "themen": ["CE 5 UE 7 Betäubungsmittel"]}
+        ]
+      }
+    },
+    {
+      "klausur": 2, "tag": 2,
+      "person": "Erwachsene und behinderte Menschen", "setting": "ambulante Pflege",
+      "varianten": {
+        "A": [
+          {"kb": "I. Pflegeprozesse und Pflegediagnostik in akuten und dauerhaften Pflegesituationen … 2. … unter dem besonderen Fokus von Gesundheitsförderung und Prävention.", "themen": ["CE 1 UE 3 Monika Krohwinkel", "CE 2b UE 5 Wahrnehmung und Beobachtung"]},
+          {"kb": "II. Kommunikation und Beratung personen- und situationsorientiert gestalten. 2. Information, Schulung und Beratung …", "themen": ["CE 03 UE 2 Kommunikationsmodelle", "CE 05 UE 13 Vertiefung Informieren und Beraten, Anleitung"]},
+          {"kb": "V. Das eigene Handeln auf Grundlage von wissenschaftlichen Erkenntnissen und berufsethischen Werthaltungen und Einstellungen reflektieren und begründen. 1. …", "themen": ["CE 4 UE 2 Salutogenese", "CE 04 UE3 Kinästhetik in der Pflege"]}
+        ],
+        "B": [
+          {"kb": "I. Pflegeprozesse und Pflegediagnostik in akuten und dauerhaften Pflegesituationen … 2. … unter dem besonderen Fokus von Gesundheitsförderung und Prävention.", "themen": ["CE 02b UE 3 Dysphagie", "CE 09 UE 3 Ernährung/Flüssigkeit bei Menschen mit einer Demenz", "CE 4 UE 3 Fragen zur weiteren pflegerischen Versorgung, Prävention", "CE 02a UE 1 Sturzgefahr und Sturzprophylaxe"]},
+          {"kb": "II. Kommunikation und Beratung personen- und situationsorientiert gestalten. 2. Information, Schulung und Beratung …", "themen": ["CE 3 UE 2 Kommunikationsmodell Schulz von Thun", "CE 4 UE 3 Beratung"]},
+          {"kb": "V. Das eigene Handeln auf Grundlage von wissenschaftlichen Erkenntnissen und berufsethischen Werthaltungen und Einstellungen reflektieren und begründen. 1. …", "themen": ["CE 09 UE 3 Ernährung/Flüssigkeit bei Demenz (Entscheidungsfindung zur PEG)", "CE 5 UE 1 Ethik in der Pflege: Prinzipien der Medizinethik nach Beauchamp und Childress", "CE 07 UE 3 Basale Stimulation in der Pflege"]}
+        ]
+      }
+    },
+    {
+      "klausur": 3, "tag": 3,
+      "person": "Kind", "setting": "Krankenhaus",
+      "varianten": {
+        "A": [
+          {"kb": "I.3 Pflegeprozesse und Pflegediagnostik von Menschen aller Altersstufen in hoch belasteten und kritischen Lebenssituationen verantwortlich planen, organisieren, gestalten, durchführen, steuern und evaluieren", "themen": ["CE 10 UE 3 Kinder mit Atemwegserkrankungen (Auch Notfälle bei Kindern beachten)", "CE 2b UE 5 Körpertemperatur"]},
+          {"kb": "II.3 Ethisch reflektiert handeln", "themen": ["CE 10 UE 3 Each-Charta"]},
+          {"kb": "III.2 Ärztliche Anordnungen im Pflegekontext eigenständig durchführen.", "themen": ["CE 05 UE 7 Medikamentenmanagement (Verabreichung von Tabletten, Klistiere usw.)"]}
+        ],
+        "B": [
+          {"kb": "I.3 Pflegeprozesse und Pflegediagnostik von Menschen aller Altersstufen in hoch belasteten und kritischen Lebenssituationen verantwortlich planen, organisieren, gestalten, durchführen, steuern und evaluieren", "themen": ["CE 05 UE 10 akute und chronische Niereninsuffizienz einschließlich aller resultierender Behandlungsmethoden", "CE 01 UE 3 Pflegeprozess nach Krohwinkel"]},
+          {"kb": "I.4 In lebensbedrohlichen sowie in Krisen- oder Katastrophensituationen zielgerichtet handeln.", "themen": ["CE 06 UE 1 Handeln in Notfällen (Schockformen)"]},
+          {"kb": "II.3 Ethisch reflektiert handeln", "themen": ["CE 10 UE 3 Each-Charta"]},
+          {"kb": "III.2 Ärztliche Anordnungen im Pflegekontext eigenständig durchführen.", "themen": ["CE 02a UE 5 s.c.-Injektion"]}
+        ]
+      }
+    }
+  ]
+}

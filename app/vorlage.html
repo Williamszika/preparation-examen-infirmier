@@ -1,0 +1,548 @@
+<title>Examen Pflege Übungsprüfung</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: ein Prüfungsbogen — Deckblatt, Fall, Aufgaben untereinander; die Korrektur steht in Rotstift am Rand. */
+:root{
+  --paper:#f4f6f5; --sheet:#ffffff; --ink:#18202c; --soft:#566173; --line:#d6dce2;
+  --blue:#1d4aa0; --bluebg:#e7eefb; --red:#b8322a; --redbg:#fbecea;
+  --good:#24724a; --goodbg:#e4f3ea; --warn:#8a5a00; --warnbg:#fbf1dc;
+  --f-ui:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-text:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-pen:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#101419; --sheet:#171c23; --ink:#e6eaf0; --soft:#9aa5b4; --line:#2b333d;
+  --blue:#8fb2f2; --bluebg:#18243a; --red:#ff8d80; --redbg:#36191a;
+  --good:#7fd2a1; --goodbg:#15291e; --warn:#e6b65c; --warnbg:#2f2513; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#101419; --sheet:#171c23; --ink:#e6eaf0; --soft:#9aa5b4; --line:#2b333d;
+  --blue:#8fb2f2; --bluebg:#18243a; --red:#ff8d80; --redbg:#36191a;
+  --good:#7fd2a1; --goodbg:#15291e; --warn:#e6b65c; --warnbg:#2f2513; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-ui);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:1.6rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.lbl{font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.muted{color:var(--soft)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* Kopf */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.brand{font-weight:700;font-size:1.02rem;letter-spacing:.01em}
+.brand small{display:block;font-weight:500;font-size:.75rem;color:var(--soft);letter-spacing:.06em;text-transform:uppercase}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap}
+nav.tabs a{color:var(--ink);text-decoration:none;padding:6px 10px;border-radius:var(--r);font-weight:600;font-size:.92rem}
+nav.tabs a[aria-current="page"]{background:var(--bluebg);color:var(--blue)}
+
+/* Uhr */
+.clock{position:sticky;top:calc(env(safe-area-inset-top,0px) + 57px);z-index:4;background:var(--ink);color:var(--sheet);border-radius:0 0 var(--r) var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.clock .t{font-variant-numeric:tabular-nums;font-size:1.7rem;font-weight:700;letter-spacing:.02em}
+.clock.low{background:var(--red);color:#fff}
+.clock .bar{flex:1 1 160px;height:6px;background:color-mix(in srgb,var(--sheet) 25%,transparent);border-radius:3px;overflow:hidden;min-width:120px}
+.clock .bar i{display:block;height:100%;background:var(--sheet)}
+.clock.low .bar i{background:#fff}
+.clock .saved{font-size:.8rem;opacity:.85}
+
+/* Knöpfe */
+.btn{border:1.5px solid var(--ink);background:var(--sheet);color:var(--ink);padding:9px 16px;border-radius:var(--r);font-weight:600}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:var(--sheet)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ghost{border-color:var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.big{font-size:1.1rem;padding:14px 26px}
+.clock .btn{background:transparent;color:inherit;border-color:currentColor}
+
+/* Startseite */
+.intro{padding-block:22px 6px;display:flex;flex-direction:column;gap:8px}
+.days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+@media (max-width:720px){.days{grid-template-columns:1fr}}
+.day{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.day .head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.day .num{font-size:2rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.var{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.var .vh{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.var .vh b{font-size:1rem}
+.var ul{margin:0;padding-left:18px;font-size:.84rem;color:var(--soft)}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--line);color:var(--ink);white-space:nowrap}
+.pill.go{background:var(--bluebg);color:var(--blue)}
+.pill.run{background:var(--warnbg);color:var(--warn)}
+.pill.done{background:var(--goodbg);color:var(--good)}
+.pill.wait{background:transparent;border:1px dashed var(--line);color:var(--soft)}
+.oral{margin-top:16px;background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+
+/* Bogen */
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:clamp(16px,4vw,32px);display:flex;flex-direction:column;gap:18px}
+.cover dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.cover dt{color:var(--soft);font-weight:600}
+.cover dd{margin:0;font-variant-numeric:tabular-nums}
+.locked{border:2px dashed var(--line);border-radius:var(--r);padding:28px 16px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.locked .lock{font-size:2rem;line-height:1}
+.fall{font-family:var(--f-text);font-size:1.05rem;line-height:1.65;max-width:68ch;display:flex;flex-direction:column;gap:10px}
+.task{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.task .meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.task .nr{font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.task .op{font-weight:700;color:var(--blue)}
+.task .q{font-family:var(--f-text);font-size:1.03rem;max-width:68ch}
+.task .pts{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+textarea{width:100%;box-sizing:border-box;min-height:140px;resize:vertical;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:1rem;line-height:1.55;padding:10px 12px}
+textarea[readonly]{background:transparent;border-style:dashed}
+.note{border-radius:var(--r);padding:10px 12px;font-size:.92rem}
+.note.info{background:var(--bluebg)}
+.note.warn{background:var(--warnbg)}
+.note.ok{background:var(--goodbg)}
+
+/* Korrektur */
+.grade{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;border:2px solid var(--red);border-radius:var(--r);padding:16px}
+.grade .n{font-family:var(--f-pen);color:var(--red);font-size:3.2rem;line-height:1}
+.grade .s{font-variant-numeric:tabular-nums}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:640px){.cmp{grid-template-columns:1fr}}
+.cmp > div{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;min-width:0}
+.cmp .yours{white-space:pre-wrap;font-family:var(--f-text)}
+.cmp ul{margin:0;padding-left:18px}
+.cmp li.hit::marker{color:var(--good)}
+.pen{font-family:var(--f-pen);color:var(--red);font-size:1.08rem;line-height:1.4}
+.pen .sc{font-weight:700;font-size:1.3rem}
+.src{font-size:.75rem;color:var(--soft)}
+.lang{font-size:.9rem}
+.lang s{color:var(--red)}
+
+/* Mündlich */
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:85%;padding:10px 12px;border-radius:var(--r);white-space:pre-wrap;font-family:var(--f-text)}
+.msg.p{background:var(--bluebg);align-self:flex-start}
+.msg.k{background:var(--paper);border:1px solid var(--line);align-self:flex-end}
+.msg .who{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:2px}
+.list{display:flex;flex-direction:column;gap:8px}
+.list .it{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.tbl{overflow-x:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top"><div class="in">
+  <div class="brand">Examen Pflege · Übungsprüfung<small>Matrix schriftliches Examen 23-26</small></div>
+  <nav class="tabs" id="tabs">
+    <a href="#start" id="tab-start">Schriftlich</a>
+    <a href="#muendlich" id="tab-muendlich">Mündlich</a>
+    <a href="#ergebnisse" id="tab-ergebnisse">Ergebnisse</a>
+    <a href="#abgaben" id="tab-abgaben" hidden>Abgaben</a>
+  </nav>
+</div></header>
+<main class="wrap" id="app"></main>
+
+<script>
+const DATA = /*__DATA__*/null;
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtT = ms => { ms = Math.max(0, ms); const s = Math.floor(ms/1000); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h? h+":" : "") + String(m).padStart(2,"0") + ":" + String(x).padStart(2,"0"); };
+const fmtD = t => t ? new Date(t).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "–";
+const EX = Object.fromEntries((DATA.pruefungen||[]).map(e => [e.id, e]));
+const OR = Object.fromEntries((DATA.muendlich||[]).map(e => [e.id, e]));
+
+/* Notenschlüssel NRW aus ressources/klausur-konventionen.md (Etude-Repo) — Übungsnote, nicht die amtliche Bewertung */
+function note(p){ if(p>=90)return[1,"sehr gut"]; if(p>=75)return[2,"gut"]; if(p>=60)return[3,"befriedigend"]; if(p>=50)return[4,"ausreichend"]; if(p>=35)return[5,"mangelhaft"]; return[6,"ungenügend"]; }
+
+/* ---------- Speicher: db (geteilt, Claude liest mit) oder nur dieses Gerät ---------- */
+const S = { db:null, user:null, uid:null, sample:null, owner:false, mode:"local", docs:{}, ready:false };
+const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
+function localAll(){ return LS.get("examen-versuche-v1") || {}; }
+function col(){ return S.db.collection("abgaben/" + S.uid + "/versuche"); }
+const writing = {};
+let parentDone = false;
+async function save(doc){
+  doc = JSON.parse(JSON.stringify(doc)); doc.geaendert = Date.now();
+  if(S.mode === "db" && !parentDone){ parentDone = true; S.db.doc("abgaben/" + S.uid).set({ zuletzt: Date.now() }).catch(()=>{ parentDone = false; }); }
+  S.docs[doc.key] = doc;
+  if(S.mode === "db"){
+    const k = doc.key;
+    writing[k] = (writing[k] || Promise.resolve()).then(() => col().doc(k).set(doc)).catch(e => { console.warn(e); flash("Nicht gespeichert: " + (e.code||"Fehler") + ". Deine Antworten bleiben auf diesem Gerät."); LS.set("examen-versuche-v1", {...localAll(), [k]: doc}); });
+    await writing[k];
+  } else {
+    const all = localAll(); all[doc.key] = doc; LS.set("examen-versuche-v1", all);
+  }
+}
+function versuche(id){ return Object.values(S.docs).filter(d => d.pruefung === id).sort((a,b) => a.versuch - b.versuch); }
+function letzter(id){ const v = versuche(id); return v[v.length-1] || null; }
+let toast;
+function flash(t){ let el = $("#toast"); if(!el){ el = document.createElement("div"); el.id="toast"; el.setAttribute("role","status"); el.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--sheet);padding:10px 14px;border-radius:6px;z-index:20;max-width:90vw;font-size:.9rem"; document.body.append(el);} el.textContent=t; el.hidden=false; clearTimeout(toast); toast=setTimeout(()=>el.hidden=true, 4000); }
+
+async function boot(){
+  S.docs = localAll();
+  render();
+  try{
+    const [db, user, sample] = await Promise.all([claude.use("db"), claude.use("user"), claude.use("sample")]);
+    S.sample = sample; S.user = user;
+    S.owner = user ? !!(await user.isOwner()) : false;
+    S.uid = user ? await user.id() : null;
+    if(db && S.uid){
+      S.db = db; S.mode = "db";
+      const timer = setTimeout(() => flash("Der Speicher antwortet noch nicht — du arbeitest vorerst auf diesem Gerät."), 10000);
+      col().onSnapshot(snap => {
+        clearTimeout(timer);
+        const fromDb = {}; snap.docs.forEach(d => fromDb[d.id] = d.data());
+        // lokale, noch nicht übertragene Versuche übernehmen
+        const loc = localAll();
+        for(const k in loc){ if(!fromDb[k] || (loc[k].geaendert||0) > (fromDb[k].geaendert||0)){ fromDb[k] = loc[k]; col().doc(k).set(loc[k]).catch(()=>{}); } }
+        S.docs = fromDb; S.ready = true; if(!editing()) render();
+      }, e => { clearTimeout(timer); S.mode = "local"; flash("Speicher nicht erreichbar (" + e.code + ") — Antworten bleiben auf diesem Gerät."); render(); });
+    }
+  }catch(e){ console.warn(e); }
+  $("#tab-abgaben").hidden = !S.owner;
+  render();
+}
+function editing(){ const a = document.activeElement; return a && a.tagName === "TEXTAREA"; }
+
+/* ---------- Routing ---------- */
+window.addEventListener("hashchange", render);
+function route(){ return (location.hash || "#start").slice(1); }
+let tick;
+function render(){
+  clearInterval(tick);
+  const r = route();
+  for(const a of document.querySelectorAll("#tabs a")) a.removeAttribute("aria-current");
+  const tab = r === "muendlich" || OR[r] ? "muendlich" : r === "ergebnisse" ? "ergebnisse" : r === "abgaben" ? "abgaben" : "start";
+  $("#tab-" + tab)?.setAttribute("aria-current","page");
+  const app = $("#app");
+  if(EX[r]) return renderExam(app, EX[r]);
+  if(OR[r]) return renderOral(app, OR[r]);
+  if(r === "muendlich") return renderOralList(app);
+  if(r === "ergebnisse") return renderResults(app);
+  if(r === "abgaben") return renderAdmin(app);
+  renderStart(app);
+}
+
+/* ---------- Start ---------- */
+function status(id){
+  const v = letzter(id);
+  if(!v) return ["Offen","go"];
+  if(v.status === "laeuft") return Date.now() < v.ende ? ["Läuft","run"] : ["Abgegeben","done"];
+  if(v.korrektur) { const p = v.korrektur.prozent; return ["Note " + note(p)[0] + " · " + p + " %","done"]; }
+  return ["Abgegeben","done"];
+}
+function renderStart(app){
+  const mode = S.mode === "db" ? "Deine Abgaben werden gespeichert und können korrigiert werden." : "Speicher noch nicht verbunden: Antworten bleiben vorerst auf diesem Gerät.";
+  app.innerHTML = `
+  <section class="intro">
+    <span class="lbl">Schriftliche Prüfung · § 14 PflAPrV</span>
+    <h1>Drei Aufsichtsarbeiten an drei Tagen</h1>
+    <p class="muted" style="max-width:68ch">Jeden Tag eine Klausur nach der Matrix deiner Schule, in zwei Varianten: erst A, dann B. Eine Arbeit ist verschlossen, bis du auf <b>Ich bin bereit</b> drückst. Dann läuft die Uhr. Wenn die Zeit um ist, schließt sich alles und die Arbeit wird korrigiert.</p>
+    <p class="note info">${esc(mode)}</p>
+  </section>
+  ${(DATA.pruefungen||[]).filter(e => e.probe).map(e => { const [st,cl] = status(e.id); return `<section class="oral" style="border-style:dashed"><div><span class="lbl">Zum Ausprobieren · ${e.dauerMin} Minuten · ${e.gesamtpunkte} Punkte</span><h2>${esc(e.titel)}</h2><p class="muted">Ein kurzer Probelauf mit drei Aufgaben. So siehst du, wie Sperre, Uhr, Abgabe und Korrektur funktionieren.</p></div><div class="row"><span class="pill ${cl}">${esc(st)}</span><a class="btn pri" style="text-decoration:none" href="#${e.id}">${cl==="go"?"Probelauf starten":"Ansehen"}</a></div></section>`; }).join("")}
+  <div class="days">${DATA.matrix.klausuren.map(k => `
+    <article class="day">
+      <div class="head"><div><span class="lbl">Tag</span><div class="num">${k.tag}</div></div><div style="text-align:right"><b>Klausur ${k.klausur}</b><div class="muted" style="font-size:.85rem">${esc(k.person)} · ${esc(k.setting)}</div></div></div>
+      ${["A","B"].map(v => { const id = "k"+k.klausur+v.toLowerCase(); const ex = EX[id]; const [st,cl] = ex ? status(id) : ["In Vorbereitung","wait"];
+        const themen = k.varianten[v].flatMap(x => x.themen);
+        return `<div class="var"><div class="vh"><b>Variante ${v}</b><span class="pill ${cl}">${esc(st)}</span></div>
+          <ul>${[...new Set(themen)].map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+          ${ex ? `<a class="btn ${cl==="go"?"pri":"ghost"}" style="text-align:center;text-decoration:none" href="#${id}">${cl==="go"?"Zur Arbeit":cl==="run"?"Weiterschreiben":"Ansehen"}</a>` : `<span class="muted" style="font-size:.8rem">Wird aus deinem Drive geschrieben.</span>`}
+        </div>`; }).join("")}
+    </article>`).join("")}
+  </div>
+  <section class="oral"><div><span class="lbl">Mündliche Prüfung · § 15 PflAPrV</span><h2>Mit der Prüferin sprechen</h2><p class="muted">Ein komplexer Fall zu den Kompetenzbereichen III, IV und V.</p></div><a class="btn pri" style="text-decoration:none" href="#muendlich">Zur mündlichen Prüfung</a></section>`;
+}
+
+/* ---------- Schriftliche Arbeit ---------- */
+function renderExam(app, ex){
+  const v = letzter(ex.id);
+  const now = Date.now();
+  if(v && v.status === "laeuft" && now >= v.ende){ v.status = "abgegeben"; v.abgegeben = v.ende; v.automatisch = true; save(v); }
+  if(!v || (v.status !== "laeuft" && v.neu)) return renderCover(app, ex, v);
+  if(v.status === "laeuft") return renderWriting(app, ex, v);
+  return renderSubmitted(app, ex, v);
+}
+function coverInfo(ex){
+  const afb = {I:0,II:0,III:0}; ex.aufgaben.forEach(a => afb[a.afb] = (afb[a.afb]||0) + a.punkte);
+  return `<dl>
+    <dt>Klausur</dt><dd>${ex.probe ? "Probelauf" : `${ex.klausur}, Variante ${esc(ex.variante)} · Tag ${ex.tag}`}</dd>
+    <dt>Fall</dt><dd>${esc(ex.person)} · ${esc(ex.setting)}</dd>
+    <dt>Bearbeitungszeit</dt><dd>${ex.dauerMin} Minuten</dd>
+    <dt>Punkte</dt><dd>${ex.gesamtpunkte} (AFB I ${afb.I} · II ${afb.II} · III ${afb.III})</dd>
+    <dt>Aufgaben</dt><dd>${ex.aufgaben.length}</dd>
+    <dt>Hilfsmittel</dt><dd>keine</dd>
+    <dt>Bewertung</dt><dd>Übungsnote nach dem NRW-Schlüssel deiner Unterlagen, bestanden ab 50 %</dd></dl>`;
+}
+function renderCover(app, ex, last){
+  const n = versuche(ex.id).length;
+  app.innerHTML = `<div style="height:16px"></div><article class="sheet cover">
+    <div><span class="lbl">${ex.probe ? "Probelauf" : `Aufsichtsarbeit ${ex.klausur} · Variante ${esc(ex.variante)}`}</span><h1>${esc(ex.titel)}</h1></div>
+    ${coverInfo(ex)}
+    <div class="locked" id="locked"><div class="lock" aria-hidden="true">🔒</div>
+      <p><b>Die Aufgaben sind verschlossen.</b><br><span class="muted">Leg dein Handy weg, nimm dir ${ex.dauerMin} Minuten Ruhe. Die Uhr startet, sobald du drückst, und läuft weiter, auch wenn du die Seite schließt.</span></p>
+      <button class="btn pri big" id="ready">Ich bin bereit</button>
+      ${n ? `<p class="muted" style="font-size:.85rem">Das wird dein ${n+1}. Versuch.</p>` : ""}
+    </div>
+    <a href="#start" class="muted">← zurück zur Übersicht</a>
+  </article>`;
+  $("#ready").onclick = async () => {
+    const start = Date.now(); const nr = n + 1;
+    const doc = { key: ex.id + "-" + nr, pruefung: ex.id, versuch: nr, status: "laeuft", start, ende: start + ex.dauerMin*60000, antworten: {} };
+    await save(doc); render();
+  };
+}
+function taskHead(a){ return `<div class="meta"><span class="nr">${esc(a.nr)}</span><span class="op">${esc(a.operator)}</span><span class="pill">AFB ${esc(a.afb)}</span><span class="pts">${a.punkte} P.</span></div><p class="q">${esc(a.frage)}</p>`; }
+function renderWriting(app, ex, v){
+  app.innerHTML = `
+  <div class="clock" id="clock" role="timer" aria-live="off"><div><span class="lbl" style="color:inherit;opacity:.8">Restzeit</span><div class="t" id="rest">${fmtT(v.ende-Date.now())}</div></div>
+    <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    <span class="saved" id="saved">gespeichert</span>
+    <button class="btn" id="abgeben">Abgeben</button></div>
+  <article class="sheet">
+    <div><span class="lbl">Aufsichtsarbeit ${ex.klausur} · Variante ${esc(ex.variante)} · ${esc(ex.person)} · ${esc(ex.setting)}</span><h1>${esc(ex.titel)}</h1></div>
+    <section><span class="lbl">Fallsituation</span><div class="fall">${ex.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></section>
+    ${ex.aufgaben.map(a => `<section class="task">${taskHead(a)}<label class="lbl" for="a-${esc(a.nr)}">Deine Antwort</label><textarea id="a-${esc(a.nr)}" data-nr="${esc(a.nr)}" spellcheck="false">${esc(v.antworten[a.nr]||"")}</textarea></section>`).join("")}
+    <div class="row" id="endbox"><button class="btn pri big" id="abgeben2">Arbeit abgeben</button><span class="muted">Bis zum Ende der Zeit kannst du sie wieder öffnen.</span></div>
+  </article>`;
+  let t;
+  app.querySelectorAll("textarea").forEach(ta => ta.addEventListener("input", () => {
+    v.antworten[ta.dataset.nr] = ta.value; $("#saved").textContent = "…";
+    clearTimeout(t); t = setTimeout(async () => { await save(v); $("#saved").textContent = "gespeichert " + new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}); }, 1200);
+  }));
+  const total = ex.dauerMin*60000;
+  const upd = () => { const rest = v.ende - Date.now(); $("#rest").textContent = fmtT(rest); $("#bar").style.width = (100*Math.max(0,rest)/total) + "%"; $("#clock").classList.toggle("low", rest < 10*60000);
+    if(rest <= 0){ clearInterval(tick); app.querySelectorAll("textarea").forEach(ta => v.antworten[ta.dataset.nr] = ta.value); v.status = "abgegeben"; v.abgegeben = v.ende; v.automatisch = true; save(v).then(render); flash("Die Zeit ist um. Deine Arbeit wurde abgegeben."); } };
+  upd(); tick = setInterval(upd, 1000);
+  const abg = async () => { clearTimeout(t); app.querySelectorAll("textarea").forEach(ta => v.antworten[ta.dataset.nr] = ta.value); v.status = "abgegeben"; v.abgegeben = Date.now(); await save(v); render(); scrollTo(0,0); };
+  $("#abgeben").onclick = abg; $("#abgeben2").onclick = abg;
+}
+function renderSubmitted(app, ex, v){
+  const now = Date.now(); const offen = !v.endgueltig && now < v.ende;
+  const all = versuche(ex.id);
+  app.innerHTML = `<div style="height:16px"></div><article class="sheet">
+    <div><span class="lbl">Aufsichtsarbeit ${ex.klausur} · Variante ${esc(ex.variante)} · Versuch ${v.versuch}${all.length>1?" von "+all.length:""}</span><h1>${esc(ex.titel)}</h1></div>
+    <p class="note ${v.korrektur?"ok":"info"}">Abgegeben am ${fmtD(v.abgegeben)}${v.automatisch?" (Zeit abgelaufen)":""}. ${offen ? "Noch " + fmtT(v.ende-now) + " Zeit: du kannst sie wieder öffnen." : "Die Arbeit ist geschlossen."}</p>
+    <div class="row">
+      ${offen ? `<button class="btn" id="reopen">Wieder öffnen und weiterschreiben</button>` : ""}
+      <button class="btn red" id="korr">${v.korrektur ? "Korrektur und Note ansehen" : "Korrigieren lassen und Note ansehen"}</button>
+      <button class="btn ghost" id="copy">Antworten kopieren</button>
+      <button class="btn ghost" id="again">Neuer Versuch</button>
+    </div>
+    <div id="confirm"></div>
+    <div id="out" class="stack"></div>
+    <details><summary class="lbl" style="cursor:pointer">Fall und deine Antworten</summary><div class="stack" style="margin-top:12px">
+      <div class="fall">${ex.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>
+      ${ex.aufgaben.map(a => `<section class="task">${taskHead(a)}<textarea readonly aria-label="Deine Antwort ${esc(a.nr)}">${esc(v.antworten[a.nr]||"")}</textarea></section>`).join("")}
+    </div></details>
+    <a href="#start" class="muted">← zurück zur Übersicht</a>
+  </article>`;
+  if(offen) $("#reopen").onclick = async () => { v.status = "laeuft"; await save(v); render(); };
+  $("#copy").onclick = () => copyText(antwortText(ex, v));
+  $("#again").onclick = () => { $("#confirm").innerHTML = `<div class="note warn row"><span>Neuen Versuch beginnen? Dieser Versuch bleibt in deinen Ergebnissen.</span><button class="btn pri" id="ja">Ja, neu beginnen</button><button class="btn ghost" id="nein">Abbrechen</button></div>`;
+    $("#nein").onclick = () => $("#confirm").innerHTML = ""; $("#ja").onclick = () => renderCover(app, ex, v); };
+  $("#korr").onclick = () => {
+    if(v.korrektur) return showKorrektur(ex, v);
+    if(offen){ $("#confirm").innerHTML = `<div class="note warn row"><span>Damit schließt du die Arbeit endgültig, auch wenn noch Zeit ist.</span><button class="btn red" id="ja">Endgültig abgeben und korrigieren</button><button class="btn ghost" id="nein">Abbrechen</button></div>`;
+      $("#nein").onclick = () => $("#confirm").innerHTML = ""; $("#ja").onclick = async () => { v.endgueltig = true; await save(v); $("#confirm").innerHTML = ""; korrigieren(ex, v); }; }
+    else korrigieren(ex, v);
+  };
+  if(v.korrektur) showKorrektur(ex, v);
+}
+function antwortText(ex, v){ return `Klausur ${ex.klausur} Variante ${ex.variante} — ${ex.titel} — Versuch ${v.versuch}, abgegeben ${fmtD(v.abgegeben)}\n\n` + ex.aufgaben.map(a => `${a.nr} ${a.operator} (${a.punkte} P.)\n${a.frage}\n→ ${v.antworten[a.nr]||"(leer)"}\n`).join("\n"); }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); flash("Kopiert. Schick es Claude im Chat zur Korrektur."); }catch{ const ta = document.createElement("textarea"); ta.value = t; ta.style.cssText="width:100%;min-height:200px"; $("#out").prepend(ta); ta.select(); flash("Text markiert: jetzt kopieren."); } }
+
+function prueferPrompt(ex, v){
+  return `Du bist Prüferin in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW) und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
+
+REGELN
+- Bewerte jede Aufgabe NUR am Erwartungshorizont unten. Fachlich gleichwertige Antworten, die dasselbe meinen, zählen (andere Wörter, Stichpunkte sind erlaubt). Erfinde keine zusätzlichen Anforderungen und kein Fachwissen außerhalb des Erwartungshorizonts.
+- Achte auf den Operator: "Nennen" = Aufzählen genügt. "Beschreiben/Erklären/Erläutern" = Zusammenhang muss da sein. "Begründen/Beurteilen/Bewerten/Diskutieren" = es muss eine Begründung (weil/da/deshalb) bzw. ein Urteil mit Kriterien dastehen; eine bloße Aufzählung bekommt dort höchstens die Hälfte.
+- Fallbezug: Wo die Aufgabe den Fall nennt, muss die Antwort sich auf den Fall beziehen.
+- Punkte in Schritten von 0,5, nie mehr als die Höchstpunktzahl der Aufgabe. Leere Antwort = 0.
+- Sprache: Sprachfehler kosten KEINE Punkte, solange der Inhalt verständlich ist. Liste aber bis zu 3 wichtige Sprachfehler pro Aufgabe mit Korrektur und Baustelle (1 Kasus, 2 Genus, 3 Verbstellung, 4 falsche Freunde, 5 Komposita, 6 Siezen, 7 feste Präpositionen).
+- "kommentar": 1–2 kurze Sätze auf Deutsch (B1, einfach), was gut war und was fehlt. "fr": derselbe Hinweis in einem französischen Satz.
+- "getroffen": die Indizes (0-basiert) der Erwartungspunkte, die erfüllt sind.
+
+ANTWORTFORMAT — nur dieses JSON:
+{"aufgaben":[{"nr":"1.1","punkte":4.5,"getroffen":[0,2],"kommentar":"…","fr":"…","sprache":[{"falsch":"…","richtig":"…","baustelle":1}]}],"staerken":["…"],"ueben":["…","…"],"gesamt":"2–3 Sätze Gesamturteil auf Deutsch","gesamtFr":"dasselbe auf Französisch, 1–2 Sätze"}
+
+KLAUSUR ${ex.klausur} Variante ${ex.variante}: ${ex.titel}
+FALL:
+${ex.fall.join("\n")}
+
+AUFGABEN, ERWARTUNGSHORIZONT UND ANTWORTEN DER KANDIDATIN:
+${ex.aufgaben.map(a => `### ${a.nr} | Operator: ${a.operator} | AFB ${a.afb} | max ${a.punkte} P.
+Frage: ${a.frage}
+Erwartungshorizont:
+${a.erwartung.map((e,i) => `  [${i}] ${e.text} (${e.punkte} P.)`).join("\n")}${a.hinweis ? `\nHinweis für die Prüferin: ${a.hinweis}` : ""}
+ANTWORT DER KANDIDATIN:
+<<<${(v.antworten[a.nr]||"").slice(0,6000) || "(leer)"}>>>`).join("\n\n")}`;
+}
+async function korrigieren(ex, v){
+  const out = $("#out");
+  if(!S.sample){ out.innerHTML = `<p class="note warn">Die automatische Korrektur ist in dieser Ansicht nicht verfügbar. Unten siehst du den Erwartungshorizont zum Selbstvergleich. Oder drück auf <b>Antworten kopieren</b> und schick sie Claude im Chat.</p>`; return showKorrektur(ex, v, true); }
+  out.innerHTML = `<p class="note info" id="busy">Die Prüferin liest deine Arbeit … (das dauert meist eine bis zwei Minuten)</p>`;
+  $("#korr").disabled = true;
+  try{
+    const r = await S.sample.json(prueferPrompt(ex, v), { modelTier: "complex", cache: false });
+    const map = Object.fromEntries((r.aufgaben||[]).map(x => [String(x.nr), x]));
+    let sum = 0;
+    const aufg = ex.aufgaben.map(a => { const x = map[a.nr] || {}; const p = Math.min(a.punkte, Math.max(0, Math.round((Number(x.punkte)||0)*2)/2)); sum += p;
+      return { nr:a.nr, punkte:p, getroffen:(x.getroffen||[]).map(Number).filter(i => i>=0 && i<a.erwartung.length), kommentar:String(x.kommentar||""), fr:String(x.fr||""), sprache:(x.sprache||[]).slice(0,3) }; });
+    const prozent = Math.round(1000*sum/ex.gesamtpunkte)/10;
+    v.korrektur = { aufgaben:aufg, summe:sum, prozent, note:note(prozent)[0], staerken:r.staerken||[], ueben:r.ueben||[], gesamt:String(r.gesamt||""), gesamtFr:String(r.gesamtFr||""), von:"Claude (Prüferin)", am:Date.now() };
+    v.endgueltig = true;
+    await save(v); render();
+  }catch(e){
+    $("#korr").disabled = false;
+    const msg = {not_granted:"Du hast der Seite nicht erlaubt, Claude zu fragen.", rate_limited:"Zu viele Anfragen gerade. Versuch es in ein paar Minuten noch einmal.", invalid_json:"Die Korrektur kam unvollständig an. Drück noch einmal auf den Knopf."}[e.code] || "Die Korrektur hat nicht geklappt (" + (e.code||"Fehler") + ").";
+    out.innerHTML = `<p class="note warn">${esc(msg)} Du kannst auch <b>Antworten kopieren</b> und sie Claude im Chat schicken.</p>`;
+  }
+}
+function showKorrektur(ex, v, nurHorizont){
+  const k = v.korrektur; const out = $("#out");
+  const kmap = k ? Object.fromEntries(k.aufgaben.map(x => [x.nr, x])) : {};
+  const [n, nt] = k ? note(k.prozent) : [null,null];
+  out.innerHTML = (k ? `
+    <section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${n}</div><div>${nt}</div></div>
+      <div class="s"><div><b>${String(k.summe).replace(".",",")}</b> von ${ex.gesamtpunkte} Punkten · ${String(k.prozent).replace(".",",")} %</div><div>${k.prozent>=50?"bestanden":"nicht bestanden"} (Grenze 50 %)</div><div class="muted" style="font-size:.85rem">korrigiert von ${esc(k.von)} am ${fmtD(k.am)}</div></div>
+      <div class="pen" style="flex:1 1 260px">${esc(k.gesamt)}${k.gesamtFr?`<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:4px">🇫🇷 ${esc(k.gesamtFr)}</div>`:""}</div>
+    </section>
+    ${(k.staerken||[]).length||(k.ueben||[]).length ? `<div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(k.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(k.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>`:""}
+    <p class="src">Die Note ist eine Übungsnote nach dem NRW-Notenschlüssel in deinen Unterlagen (ressources/klausur-konventionen.md). Die amtliche Bewertung der echten Prüfung steht nicht in deinen Unterlagen.</p>` : "") +
+    ex.aufgaben.map(a => { const x = kmap[a.nr];
+      return `<section class="task">${taskHead(a)}
+        <div class="cmp"><div><span class="lbl">Deine Antwort</span><div class="yours">${esc(v.antworten[a.nr]||"(leer)")}</div></div>
+        <div><span class="lbl">Erwartungshorizont</span><ul>${a.erwartung.map((e,i) => `<li class="${x && x.getroffen.includes(i) ? "hit":""}">${x && x.getroffen.includes(i) ? "✓ ":""}${esc(e.text)} <span class="muted">(${e.punkte} P.)</span>${e.quelle?`<div class="src">${esc(e.quelle)}</div>`:""}</li>`).join("")}</ul>${a.hinweis?`<p class="src" style="margin-top:6px">${esc(a.hinweis)}</p>`:""}</div></div>
+        ${x ? `<div class="pen"><span class="sc">${String(x.punkte).replace(".",",")} / ${a.punkte}</span> — ${esc(x.kommentar)}${x.fr?`<div class="muted" style="font-family:var(--f-ui);font-size:.9rem">🇫🇷 ${esc(x.fr)}</div>`:""}</div>
+          ${x.sprache.length ? `<div class="lang"><span class="lbl">Sprache</span><ul>${x.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>` : ""}` : ""}
+      </section>`; }).join("") +
+    `<details><summary class="lbl" style="cursor:pointer">Quellen und Hinweise zu dieser Klausur</summary><div class="stack" style="margin-top:10px;font-size:.88rem">
+      <div><b>Quellen (deine Unterlagen)</b><ul>${(ex.quellen||[]).map(q=>`<li>${esc(q)}</li>`).join("")}</ul></div>
+      ${(ex.fiktiv||[]).length?`<div><b>Erfunden für die Übung</b><ul>${ex.fiktiv.map(q=>`<li>${esc(q)}</li>`).join("")}</ul></div>`:""}
+      ${(ex.luecken||[]).length?`<div><b>Lücken</b><ul>${ex.luecken.map(q=>`<li>${esc(q)}</li>`).join("")}</ul></div>`:""}
+    </div></details>`;
+}
+
+/* ---------- Mündlich ---------- */
+function renderOralList(app){
+  const list = DATA.muendlich || [];
+  app.innerHTML = `<section class="intro"><span class="lbl">Mündliche Prüfung · § 15 PflAPrV</span><h1>Ein Fall, eine Prüferin, Kompetenzbereiche III, IV und V</h1>
+  <p class="muted" style="max-width:68ch">Du bereitest den Fall vor. Dann stellt dir die Prüferin Fragen, eine nach der anderen, und fragt nach. Am Ende bekommst du eine Rückmeldung zu Inhalt und Sprache. Schreib deine Antworten oder diktiere sie mit dem Mikrofon deiner Tastatur.</p></section>
+  <div class="list">${list.map(o => `<div class="it"><div><b>${esc(o.titel)}</b><div class="muted" style="font-size:.88rem">${esc(o.person)} · ${esc(o.setting)} · KB ${o.kb.join(", ")}</div></div><a class="btn pri" style="text-decoration:none" href="#${o.id}">Öffnen</a></div>`).join("") || `<p class="muted">Noch kein Fall da.</p>`}</div>
+  <p class="note info" style="margin-top:16px">Du kannst die mündliche Prüfung auch im Gespräch mit Claude üben: sag im Chat <b>„Mündliche Prüfung, Fall ${esc(list[0]?.id||"m1")}“</b>. Claude liest dann den Fall aus dem Repository und wird zur Prüferin, auch im Sprachmodus.</p>`;
+}
+function oralKey(o){ return "oral-" + o.id; }
+function renderOral(app, o){
+  const st = LS.get(oralKey(o)) || { phase:"vorbereitung", notizen:"", chat:[] };
+  const persist = () => LS.set(oralKey(o), st);
+  const prep = st.vorbMin || 20;
+  if(st.phase === "vorbereitung"){
+    app.innerHTML = `<div style="height:16px"></div><article class="sheet">
+      <div><span class="lbl">Mündliche Prüfung · Vorbereitung</span><h1>${esc(o.titel)}</h1><p class="muted">${esc(o.person)} · ${esc(o.setting)} · Kompetenzbereiche ${o.kb.join(", ")}</p></div>
+      ${st.vorbStart ? `<div class="clock" style="position:static;border-radius:6px" id="clock"><div><span class="lbl" style="color:inherit;opacity:.8">Vorbereitungszeit</span><div class="t" id="rest"></div></div></div>` : ""}
+      ${!st.vorbStart ? `<div class="locked"><div class="lock" aria-hidden="true">🔒</div><p><b>Der Fall ist verschlossen.</b><br><span class="muted">Vorbereitungszeit: <input id="vmin" type="number" min="5" max="60" value="${prep}" style="width:4em;font:inherit"> Minuten. Die echte Vorbereitungszeit steht nicht in deinen Unterlagen; frag deine Schule.</span></p><button class="btn pri big" id="ready">Ich bin bereit</button></div>` : `
+      <section><span class="lbl">Fallsituation</span><div class="fall">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></section>
+      <section class="stack"><span class="lbl">Bereite vor</span><ul style="margin:0">${o.vorbereitung.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      <label class="lbl" for="notes">Deine Notizen (Stichworte)</label><textarea id="notes">${esc(st.notizen)}</textarea>
+      <button class="btn pri big" id="go">Prüfung beginnen</button>`}
+      <a href="#muendlich" class="muted">← zurück</a></article>`;
+    if(!st.vorbStart){ $("#ready").onclick = () => { st.vorbMin = Math.max(5, Math.min(60, Number($("#vmin").value)||20)); st.vorbStart = Date.now(); persist(); render(); }; return; }
+    $("#notes").oninput = e => { st.notizen = e.target.value; persist(); };
+    const upd = () => { const rest = st.vorbStart + st.vorbMin*60000 - Date.now(); $("#rest").textContent = rest > 0 ? fmtT(rest) : "Zeit um — beginne die Prüfung"; $("#clock").classList.toggle("low", rest < 2*60000); };
+    upd(); tick = setInterval(upd, 1000);
+    $("#go").onclick = () => { st.phase = "pruefung"; st.pStart = Date.now(); persist(); render(); };
+    return;
+  }
+  const rules = `Du bist Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
+
+So prüfst du:
+- Sprich Deutsch, freundlich und sachlich, siezen. Kurze, klare Sätze (B1).
+- Stelle IMMER nur EINE Frage pro Nachricht. Nutze die Fragenliste unten in sinnvoller Reihenfolge und decke III, IV und V ab. Frage nach (Nachfragen unten), wenn die Antwort dünn ist oder die Begründung fehlt („Warum?“, „Woran erkennen Sie das?“).
+- Nach jeder Antwort: höchstens EIN Satz Rückmeldung zur Sprache, nur bei einem echten Fehler, so: „(Sprache: man sagt … )“. Dann die nächste Frage. Verrate den Erwartungshorizont nicht.
+- Erfinde keine Fakten über den Fall hinaus.
+- Wenn alle Fragen gestellt sind oder die Kandidatin „Ende“ schreibt: beende die Prüfung mit einem Satz und schreibe genau „[ENDE]“.
+
+FALL:
+${o.fall.join("\n")}
+
+FRAGEN MIT ERWARTUNGSHORIZONT (geheim):
+${o.fragen.map((f,i) => `${i+1}. [KB ${f.kb}] ${f.frage}\n   Nachfragen: ${(f.nachfragen||[]).join(" | ")}\n   Erwartet: ${f.erwartung.map(e=>e.text).join("; ")}`).join("\n")}
+
+Notizen der Kandidatin aus der Vorbereitung: ${st.notizen || "(keine)"}
+
+Beginne jetzt: begrüße sie in einem Satz und bitte sie, den Fall kurz vorzustellen.`;
+  const ended = st.phase === "ende";
+  app.innerHTML = `<div style="height:16px"></div><article class="sheet">
+    <div class="row" style="justify-content:space-between"><div><span class="lbl">Mündliche Prüfung · ${esc(o.titel)}</span><h2>Gespräch mit der Prüferin</h2></div><span class="pill run" id="dauer"></span></div>
+    <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}</details>
+    <div class="chat" id="chat"></div>
+    ${ended ? "" : `<label class="lbl" for="ans">Deine Antwort</label><textarea id="ans" style="min-height:100px" placeholder="Schreib oder diktiere deine Antwort …"></textarea>
+    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor" title="Die letzte Frage vorlesen">🔊 Vorlesen</button><button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
+    <div id="eval" class="stack"></div>
+    <div class="row"><button class="btn ghost" id="reset">Fall neu beginnen</button><a href="#muendlich" class="muted">← zurück</a></div>
+  </article>`;
+  const chat = $("#chat");
+  const draw = () => { chat.innerHTML = st.chat.map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?"Prüferin":"Du"}</span>${esc(m.content.replace("[ENDE]",""))}</div>`).join(""); };
+  draw();
+  const upd = () => { $("#dauer").textContent = fmtT(Date.now() - st.pStart) + " min"; }; upd(); tick = setInterval(upd, 1000);
+  const speak = t => { try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace("[ENDE]","")); u.lang = "de-DE"; u.rate = .92; speechSynthesis.speak(u); }catch{} };
+  const ask = async () => {
+    if(!S.sample){ $("#eval").innerHTML = `<p class="note warn">Die Prüferin braucht die Erlaubnis, Claude zu fragen, und ist in dieser Ansicht nicht verfügbar. Übe stattdessen im Chat mit Claude: „Mündliche Prüfung, Fall ${esc(o.id)}“.</p>`; return; }
+    const bubble = document.createElement("div"); bubble.className = "msg p"; bubble.innerHTML = `<span class="who">Prüferin</span><span>…</span>`; chat.append(bubble);
+    const turns = [{role:"user", content: rules}, ...st.chat.slice(-30)];
+    if(turns[turns.length-1].role !== "user") turns.push({role:"user", content:"(weiter)"});
+    try{
+      const { text } = await S.sample(turns, { cache:false, onText: ({text}) => bubble.lastChild.textContent = text.replace("[ENDE]","") });
+      st.chat.push({role:"assistant", content:text}); persist(); speak(text);
+      if(text.includes("[ENDE]")) return bewerten();
+    }catch(e){ bubble.lastChild.textContent = e.code === "not_granted" ? "Ohne Erlaubnis kann die Prüferin nicht antworten." : "Die Prüferin antwortet gerade nicht (" + (e.code||"Fehler") + "). Sende deine Antwort noch einmal."; }
+  };
+  const bewerten = async () => {
+    st.phase = "ende"; persist();
+    const box = $("#eval"); box.innerHTML = `<p class="note info">Die Prüferin bewertet das Gespräch …</p>`;
+    try{
+      const r = await S.sample.json(`Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"note":1-6,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. Baustellen: 1 Kasus, 2 Genus, 3 Verbstellung, 4 falsche Freunde, 5 Komposita, 6 Siezen, 7 feste Präpositionen. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.\n\nFALL: ${o.fall.join(" ")}\n\nERWARTUNG:\n${o.fragen.map(f => `[KB ${f.kb}] ${f.frage} → ${f.erwartung.map(e=>e.text).join("; ")}`).join("\n")}\n\nGESPRÄCH:\n${st.chat.map(m => (m.role==="assistant"?"Prüferin: ":"Kandidatin: ") + m.content).join("\n")}`, { modelTier:"complex", cache:false });
+      st.bewertung = r; persist(); showOralEval(r);
+      if(S.mode === "db"){ try{ await S.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + Date.now()).set({ fall:o.id, chat:st.chat, notizen:st.notizen, bewertung:r, am:Date.now() }); }catch(e){} }
+    }catch(e){ box.innerHTML = `<p class="note warn">Die Bewertung hat nicht geklappt (${esc(e.code||"Fehler")}).</p><button class="btn red" id="retry">Noch einmal bewerten</button>`; $("#retry").onclick = bewerten; }
+  };
+  const showOralEval = r => { $("#eval").innerHTML = `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
+    <div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(r.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(r.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>
+    ${(r.sprache||[]).length?`<div class="lang"><span class="lbl">Sprache</span><ul>${r.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>`:""}
+    <details><summary class="lbl" style="cursor:pointer">Erwartungshorizont</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(e => `<li>${esc(e.text)}<div class="src">${esc(e.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details>`; };
+  $("#reset").onclick = () => { LS.set(oralKey(o), null); render(); };
+  if(ended){ if(st.bewertung) showOralEval(st.bewertung); else bewerten(); return; }
+  $("#vor").onclick = () => { const last = [...st.chat].reverse().find(m => m.role === "assistant"); if(last) speak(last.content); };
+  $("#send").onclick = () => { const t = $("#ans").value.trim(); if(!t) return; st.chat.push({role:"user", content:t}); persist(); $("#ans").value = ""; draw(); ask(); };
+  $("#stop").onclick = () => bewerten();
+  if(!st.chat.length) ask();
+}
+
+/* ---------- Ergebnisse ---------- */
+function renderResults(app){
+  const rows = Object.values(S.docs).filter(d => EX[d.pruefung]).sort((a,b) => (b.start||0) - (a.start||0));
+  app.innerHTML = `<section class="intro"><span class="lbl">Ergebnisse</span><h1>Deine Versuche</h1><p class="muted">Jeder Versuch bleibt hier stehen. So siehst du, ob du besser wirst.</p></section>
+  ${rows.length ? `<div class="tbl"><table><thead><tr><th>Datum</th><th>Klausur</th><th>Versuch</th><th>Punkte</th><th>Note</th><th></th></tr></thead><tbody>${rows.map(d => { const ex = EX[d.pruefung]; const k = d.korrektur;
+    return `<tr><td>${fmtD(d.start)}</td><td>${ex.klausur}${esc(ex.variante)} · ${esc(ex.titel)}</td><td>${d.versuch}</td><td style="font-variant-numeric:tabular-nums">${k ? String(k.summe).replace(".",",") + " / " + ex.gesamtpunkte : d.status==="laeuft"?"läuft":"nicht korrigiert"}</td><td>${k ? note(k.prozent)[0] : "–"}</td><td><a href="#${ex.id}">öffnen</a></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note info">Noch kein Versuch. Fang mit <a href="#k1a">Tag 1, Variante A</a> an, sobald sie da ist, oder mit einer anderen freigeschalteten Arbeit.</p>`}`;
+}
+
+/* ---------- Abgaben (nur Besitzerin) ---------- */
+async function renderAdmin(app){
+  if(!S.owner || !S.db){ app.innerHTML = `<p class="note warn" style="margin-top:16px">Diese Ansicht sieht nur die Besitzerin der Seite.</p>`; return; }
+  app.innerHTML = `<section class="intro"><span class="lbl">Abgaben</span><h1>Alle Abgaben</h1><p class="muted">Hier siehst du die Arbeiten aller Personen, mit denen du die Seite geteilt hast.</p></section><div id="adm" class="list"><p class="muted">Lade …</p></div>`;
+  try{
+    const people = await S.db.collection("abgaben").get();
+    const ids = people.docs.map(d => d.id);
+    const rows = [];
+    for(const pid of ids){ const s = await S.db.collection("abgaben/" + pid + "/versuche").get(); s.docs.forEach(d => rows.push({pid, ...d.data()})); }
+    let names = {}; try{ names = await S.user.profiles([...new Set(rows.map(r => r.pid))]); }catch{}
+    $("#adm").innerHTML = rows.length ? rows.sort((a,b)=>(b.geaendert||0)-(a.geaendert||0)).map(r => { const ex = EX[r.pruefung]; return `<div class="it"><div><b>${esc(names[r.pid]?.name || (r.pid===S.uid?"Du":"Person"))}</b> · Klausur ${ex?ex.klausur+ex.variante:r.pruefung} · Versuch ${r.versuch}<div class="muted" style="font-size:.85rem">${r.status==="laeuft"?"läuft":"abgegeben "+fmtD(r.abgegeben)}${r.korrektur?" · Note "+r.korrektur.note+" ("+r.korrektur.prozent+" %)":""}</div></div></div>`; }).join("") : `<p class="muted">Noch keine Abgaben.</p>`;
+  }catch(e){ $("#adm").innerHTML = `<p class="note warn">Konnte die Abgaben nicht laden (${esc(e.code||"Fehler")}).</p>`; }
+}
+
+boot();
+</script>
