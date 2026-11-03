@@ -896,7 +896,7 @@ function zeigeEinstellungen(c){
 async function einstellungenLaden(){
   const tok = LS.get("examen-admin") || "";
   try{ zeigeEinstellungen(await ApiB.call("/api/admin?einstellungen=1&token=" + encodeURIComponent(tok))); }catch(e){ $("#cfgstate").textContent = "Konnte die Einstellungen nicht laden (" + (e.code||"Fehler") + ")."; }
-  const senden = async ein => { try{ zeigeEinstellungen(await ApiB.post("/api/admin", { token: tok, einstellungen: ein })); flash("Gespeichert."); }catch(e){ flash("Nicht gespeichert (" + (e.code||"Fehler") + ")."); } };
+  const senden = async ein => { try{ zeigeEinstellungen(await ApiB.post("/api/admin", { token: tok, einstellungen: ein })); flash("Gespeichert."); }catch(e){ const m = e.message || e.code || "Fehler"; $("#cfgstate").insertAdjacentHTML("beforeend", `<p class="note warn" style="margin-top:8px">Nicht gespeichert: ${esc(m)}</p>`); flash("Nicht gespeichert."); } };
   $("#cfg").onsubmit = async e => { e.preventDefault(); const opt = $("#k-voice").selectedOptions[0]; const ein = { elevenVoice: $("#k-voice").value, elevenVoiceName: opt ? opt.dataset.name || "" : "", elevenVoiceGender: opt ? opt.dataset.gender || "" : "" };
     const a = $("#k-ant").value.trim(), el = $("#k-el").value.trim(); if(a) ein.anthropicKey = a; if(el) ein.elevenKey = el;
     await senden(ein); $("#k-ant").value = ""; $("#k-el").value = ""; };

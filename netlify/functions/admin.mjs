@@ -40,6 +40,8 @@ export default async (req) => {
   const bd = await body(req);
   if(bd && erlaubt(bd.token) && bd.einstellungen && typeof bd.einstellungen === "object"){
     const ein = { ...bd.einstellungen };
+    if(typeof ein.anthropicKey === "string" && /^sk_/.test(ein.anthropicKey.trim())) return bad("Das ist ein ElevenLabs-Schlüssel (beginnt mit „sk_“). Ins KI-Feld gehört ein Claude-Schlüssel („sk-ant-…“) oder ein Agnes-AI-Schlüssel.", 400);
+    if(typeof ein.elevenKey === "string" && /^sk-ant-/.test(ein.elevenKey.trim())) return bad("Das ist ein Claude-Schlüssel („sk-ant-…“). Er gehört ins KI-Feld, nicht ins ElevenLabs-Feld.", 400);
     if(typeof ein.elevenVoiceName === "string"){ const full = ein.elevenVoiceName; ein.elevenVoiceName = nameAus(full); ein.elevenVoiceMale = istMann(ein.elevenVoiceName, ein.elevenVoiceGender) ? "1" : "0"; }
     delete ein.elevenVoiceGender;
     await configSetzen(ein); return Response.json(await einstellungen());

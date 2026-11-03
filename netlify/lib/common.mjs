@@ -45,7 +45,7 @@ export async function configSetzen(neu){
   return c;
 }
 const anthropicKey = async () => process.env.ANTHROPIC_API_KEY || (await config()).anthropicKey || "";
-export const kiAn = async () => !!(process.env.ANTHROPIC_AUTH_TOKEN || await anthropicKey());
+export const kiAn = async () => !!(process.env.ANTHROPIC_AUTH_TOKEN || (await kiAnbieter()).art);
 export const stimmeAn = async () => !!(process.env.ELEVENLABS_API_KEY || (await config()).elevenKey);
 export const elevenKey = async () => process.env.ELEVENLABS_API_KEY || (await config()).elevenKey || "";
 /* Stimme der Prüferin: Standard „Sarah“ (EXAVITQu4vr4xnSDxMaL, aus der Liste freier Stimmen in cours-allemand/api/_lib/eleven.js) */
@@ -82,7 +82,7 @@ const AGNES_ERSATZ = ["agnes-2.5-flash"];
 export async function kiAnbieter(){
   if(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) return { art: "anthropic" };
   const k = (await config()).anthropicKey || "";
-  if(!k) return { art: "" };
+  if(!k || /^sk_/.test(k)) return { art: "" };   // „sk_…“ ist ein ElevenLabs-Schlüssel, kein KI-Schlüssel
   return k.startsWith("sk-ant-") ? { art: "anthropic", key: k } : { art: "agnes", key: k };
 }
 export async function claudeText(prompt, { model, max_tokens, agnesModel }){
