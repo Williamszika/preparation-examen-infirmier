@@ -204,7 +204,13 @@ function auswerten(ex, r, von){
     gesamt:String(r.gesamt||""), gesamtFr:String(r.gesamtFr||""), von, am:Date.now() };
 }
 
-function oralRules(o, notizen){
+function planungText(planung){
+  const rows = (Array.isArray(planung) ? planung : []).filter(r => r && (r.p || r.z || r.m || r.b)).slice(0, 6);
+  if(!rows.length) return "(keine)";
+  return rows.map((r,i) => `${i+1}. Pflegeproblem (PE(S)R): ${String(r.p||"").slice(0,1500)}\n   Pflegeziel: ${String(r.z||"").slice(0,800)}\n   Pflegemaßnahmen: ${String(r.m||"").slice(0,1500)}\n   Begründung: ${String(r.b||"").slice(0,1500)}`).join("\n");
+}
+
+function oralRules(o, notizen, planung){
   return `Du bist Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
 
 So prüfst du:
@@ -222,19 +228,26 @@ ${o.fragen.map((f,i) => `${i+1}. [KB ${f.kb}] ${f.frage}\n   Nachfragen: ${(f.na
 
 Notizen der Kandidatin aus der Vorbereitung: ${String(notizen||"").slice(0,3000) || "(keine)"}
 
+Pflegeplanung der Kandidatin aus der Vorbereitung (Vorlage ihrer Schule: Pflegeproblem nach PE(S)R · Pflegeziele · Pflegemaßnahmen · Begründungen):
+${planungText(planung)}
+Wenn eine Pflegeplanung vorliegt: Stelle im Lauf der Prüfung ein bis zwei Fragen dazu und verbinde sie mit KB III–V (Wer im Team übernimmt die Maßnahme? Auf welcher rechtlichen Grundlage? Welche wissenschaftliche Begründung?). Achte darauf, ob das Problem nach PE(S)R vollständig ist, das Ziel konkret, messbar und terminiert ist und jede Maßnahme begründet ist.
+
 - Sie darf nachfragen, wenn sie eine Frage nicht versteht; sei geduldig mit ihrem Deutsch und formuliere die Frage dann einfacher.
 - Frage gezielt nach Recht und nach Pro- und Contra-Argumenten — dort zeigen Prüfungsprotokolle häufig Lücken.
 
 Beginne jetzt: begrüße sie in einem Satz und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
 }
 
-function oralEvalPrompt(o, chat){
-  return `Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
+function oralEvalPrompt(o, chat, planung){
+  return `Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
 
 FALL: ${o.fall.join(" ")}
 
 ERWARTUNG:
 ${o.fragen.map(f => `[KB ${f.kb}] ${f.frage} → ${f.erwartung.map(e=>e.text).join("; ")}`).join("\n")}
+
+PFLEGEPLANUNG DER KANDIDATIN:
+${planungText(planung)}
 
 GESPRÄCH:
 ${(chat||[]).slice(-60).map(m => (m.role==="assistant"?"Prüferin: ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
@@ -295,15 +308,15 @@ const ArtifactB = {
   },
   async pruefer(o, st, onText){
     if(!this.sample) throw { code:"no_ai" };
-    const turns = [{role:"user", content: oralRules(o, st.notizen)}, ...st.chat.slice(-30)];
+    const turns = [{role:"user", content: oralRules(o, st.notizen, st.planung)}, ...st.chat.slice(-30)];
     if(turns[turns.length-1].role !== "user") turns.push({role:"user", content:"(weiter)"});
     const { text } = await this.sample(turns, { cache:false, onText: ({text}) => onText(text) });
     return text;
   },
   async oralEval(o, st){
     if(!this.sample) throw { code:"no_ai" };
-    const r = await this.sample.json(oralEvalPrompt(o, st.chat), { modelTier:"complex", cache:false });
-    if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + Date.now()).set({ fall:o.id, chat:st.chat, notizen:st.notizen, bewertung:r, am:Date.now() }); }catch(e){} }
+    const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung), { modelTier:"complex", cache:false });
+    if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + Date.now()).set({ fall:o.id, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
     return r;
   },
   async adminList(){
@@ -345,7 +358,7 @@ const ApiB = {
     if(d.korrekturWartet) throw { code:"wartet" };
     throw { code:"server", message:d.korrekturFehler };
   },
-  async pruefer(o, st, onText){ const r = await this.post("/api/pruefer", { uid:S.uid, fall:o.id, notizen:st.notizen, chat:st.chat.slice(-30) }); onText(r.text); return r.text; },
+  async pruefer(o, st, onText){ const r = await this.post("/api/pruefer", { uid:S.uid, fall:o.id, notizen:st.notizen, planung:st.planung||[], chat:st.chat.slice(-30) }); onText(r.text); return r.text; },
   async oralEval(o, st){
     const sid = st.sid || (st.sid = String(Date.now())); LS.set("oral-" + o.id, st);
     await this.reload();
@@ -353,7 +366,7 @@ const ApiB = {
     if(vorh && vorh.bewertung) return vorh.bewertung;
     if(vorh && vorh.wartet) throw { code:"wartet_oral" };
     const t = Date.now();
-    await this.post("/api/muendlich", { uid:S.uid, name:S.name, fall:o.id, sid, t, notizen:st.notizen, chat:st.chat.slice(-60) });
+    await this.post("/api/muendlich", { uid:S.uid, name:S.name, fall:o.id, sid, t, notizen:st.notizen, planung:st.planung||[], chat:st.chat.slice(-60) });
     const k = o.id + "-" + sid;
     const x = await this.poll(() => { const d = S.oral && S.oral[k]; return d && (d.bewertung || d.wartet || (d.fehler && d.fehlerFuer === t)) ? d : null; }, 6*60000);
     if(x.bewertung) return x.bewertung;
@@ -619,10 +632,22 @@ function renderOral(app, o){
       <section class="stack"><span class="lbl">Bereite vor</span><ul style="margin:0">${o.vorbereitung.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
       ${DATA.tipps ? `<section class="stack note info"><span class="lbl">Gerüst: vier Leitfragen</span><ol style="margin:0">${DATA.tipps.leitfragen.map(x => `<li>${esc(x)}</li>`).join("")}</ol><span class="src">${esc(DATA.tipps.leitfragenHinweis)} ${quelleLinks(DATA.tipps.leitfragenQ)}</span></section>` : ""}
       <label class="lbl" for="notes">Deine Notizen (Stichworte)</label><textarea id="notes">${esc(st.notizen)}</textarea>
+      <section class="stack"><h2>Deine Pflegeplanung</h2>
+        <p class="muted" style="font-size:.9rem">Nach der Vorlage deiner Schule: „Verschriftung eines gedanklichen Problemlösungsprozesses im PESR-System“ — Pflegeproblem · Pflegeziele · Pflegemaßnahmen · Begründungen. Die Prüferin fragt im Gespräch danach. (§ 15 verlangt für die mündliche Prüfung keine Pflegeplanung — du übst sie hier auf eigenen Wunsch.)</p>
+        <div id="plan" class="stack"></div>
+        <button class="btn ghost" id="addrow" type="button">+ weiteres Pflegeproblem</button>
+        <span class="src">Vorlage: PDFs/30-pflegeplanung-vorlage.pdf (Etude-Repo, Wissen/029-pflegeplanung-vorlage-pesr.md)</span>
+      </section>
       <button class="btn pri big" id="go">Prüfung beginnen</button>`}
       <a href="#muendlich" class="muted">← zurück</a></article>`;
     if(!st.vorbStart){ $("#ready").onclick = () => { st.vorbMin = Math.max(5, Math.min(60, Number($("#vmin").value)||20)); st.vorbStart = Date.now(); persist(); render(); }; return; }
     $("#notes").oninput = e => { st.notizen = e.target.value; persist(); };
+    if(!Array.isArray(st.planung) || !st.planung.length) st.planung = [{p:"",z:"",m:"",b:""}];
+    const felder = [["p","Pflegeproblem (PE(S)R)","Problem · Ursache (Etiologie) · Symptome (nur bei aktuellen Problemen) · Ressourcen"],["z","Pflegeziele","konkret, messbar, realistisch, terminiert; Nah- und Fernziel"],["m","Pflegemaßnahmen","wer, was, wann, wie oft, womit"],["b","Begründungen","warum diese Maßnahme das Ziel erreicht (Fachwissen, Expertenstandard)"]];
+    const drawPlan = () => { $("#plan").innerHTML = st.planung.map((r,i) => `<div class="cmp" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">${felder.map(([k,l,h]) => `<div style="padding:0;border:0"><label class="lbl" for="pl-${i}-${k}">${i+1}. ${esc(l)}</label><textarea id="pl-${i}-${k}" data-i="${i}" data-k="${k}" placeholder="${esc(h)}" style="min-height:110px">${esc(r[k]||"")}</textarea></div>`).join("")}</div>`).join("");
+      $("#plan").querySelectorAll("textarea").forEach(ta => ta.oninput = () => { st.planung[ta.dataset.i][ta.dataset.k] = ta.value; persist(); }); };
+    drawPlan();
+    $("#addrow").onclick = () => { if(st.planung.length < 6){ st.planung.push({p:"",z:"",m:"",b:""}); persist(); drawPlan(); } };
     const upd = () => { const rest = st.vorbStart + st.vorbMin*60000 - Date.now(); $("#rest").textContent = rest > 0 ? fmtT(rest) : "Zeit um — beginne die Prüfung"; $("#clock").classList.toggle("low", rest < 2*60000); };
     upd(); tick = setInterval(upd, 1000);
     $("#go").onclick = () => { st.phase = "pruefung"; st.pStart = Date.now(); persist(); render(); };
@@ -631,7 +656,7 @@ function renderOral(app, o){
   const ended = st.phase === "ende";
   app.innerHTML = `<div style="height:16px"></div><article class="sheet">
     <div class="row" style="justify-content:space-between"><div><span class="lbl">Mündliche Prüfung · ${esc(o.titel)}</span><h2>Gespräch mit der Prüferin</h2></div><span class="pill run" id="dauer"></span></div>
-    <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}</details>
+    <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}${(st.planung||[]).some(r => r.p||r.z||r.m||r.b) ? `<div class="tbl" style="margin-top:8px"><table><thead><tr><th>Pflegeproblem</th><th>Pflegeziele</th><th>Pflegemaßnahmen</th><th>Begründungen</th></tr></thead><tbody>${st.planung.filter(r => r.p||r.z||r.m||r.b).map(r => `<tr><td style="white-space:pre-wrap">${esc(r.p)}</td><td style="white-space:pre-wrap">${esc(r.z)}</td><td style="white-space:pre-wrap">${esc(r.m)}</td><td style="white-space:pre-wrap">${esc(r.b)}</td></tr>`).join("")}</tbody></table></div>` : ""}</details>
     <div class="chat" id="chat"></div>
     ${ended ? "" : `<label class="lbl" for="ans">Deine Antwort</label><textarea id="ans" style="min-height:100px" placeholder="Schreib oder diktiere deine Antwort …"></textarea>
     <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 Frage vorlesen</button><button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
@@ -645,8 +670,10 @@ function renderOral(app, o){
   const speak = t => { try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace("[ENDE]","")); u.lang = "de-DE"; u.rate = .92; speechSynthesis.speak(u); }catch{} };
   const offlineFrage = () => {
     const gestellt = st.chat.filter(m => m.role === "assistant").length;
-    if(gestellt === 0) return "Guten Tag. Stellen Sie bitte den Fall kurz vor.";
-    const f = o.fragen[gestellt - 1];
+    if(gestellt === 0) return "Guten Tag. Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.";
+    const hatPlan = (st.planung||[]).some(r => r.p||r.m);
+    if(hatPlan && gestellt === 1) return "Sie haben eine Pflegeplanung vorbereitet. Welches Pflegeproblem hat für Sie Vorrang, und wie begründen Sie Ihre wichtigste Maßnahme?";
+    const f = o.fragen[gestellt - (hatPlan ? 2 : 1)];
     return f ? f.frage : "Vielen Dank. Die Prüfung ist beendet. [ENDE]";
   };
   const ask = async () => {
@@ -662,7 +689,7 @@ function renderOral(app, o){
       bubble.lastChild.textContent = kiFehler(e) + " Sende deine Antwort noch einmal."; }
     finally{ $("#send") && ($("#send").disabled = false); }
   };
-  const showOralEval = r => { $("#eval").innerHTML = `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
+  const showOralEval = r => { $("#eval").innerHTML = `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}${r.planung ? `<div><b>Pflegeplanung:</b> ${esc(r.planung)}</div>` : ""}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
     <div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(r.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(r.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>
     ${(r.sprache||[]).length?`<div class="lang"><span class="lbl">Sprache</span><ul>${r.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>`:""}
     <details><summary class="lbl" style="cursor:pointer">Erwartungshorizont</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(e => `<li>${esc(e.text)}<div class="src">${esc(e.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details>`; };

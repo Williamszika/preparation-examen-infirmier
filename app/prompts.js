@@ -55,7 +55,13 @@ function auswerten(ex, r, von){
     gesamt:String(r.gesamt||""), gesamtFr:String(r.gesamtFr||""), von, am:Date.now() };
 }
 
-function oralRules(o, notizen){
+function planungText(planung){
+  const rows = (Array.isArray(planung) ? planung : []).filter(r => r && (r.p || r.z || r.m || r.b)).slice(0, 6);
+  if(!rows.length) return "(keine)";
+  return rows.map((r,i) => `${i+1}. Pflegeproblem (PE(S)R): ${String(r.p||"").slice(0,1500)}\n   Pflegeziel: ${String(r.z||"").slice(0,800)}\n   Pflegemaßnahmen: ${String(r.m||"").slice(0,1500)}\n   Begründung: ${String(r.b||"").slice(0,1500)}`).join("\n");
+}
+
+function oralRules(o, notizen, planung){
   return `Du bist Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
 
 So prüfst du:
@@ -73,19 +79,26 @@ ${o.fragen.map((f,i) => `${i+1}. [KB ${f.kb}] ${f.frage}\n   Nachfragen: ${(f.na
 
 Notizen der Kandidatin aus der Vorbereitung: ${String(notizen||"").slice(0,3000) || "(keine)"}
 
+Pflegeplanung der Kandidatin aus der Vorbereitung (Vorlage ihrer Schule: Pflegeproblem nach PE(S)R · Pflegeziele · Pflegemaßnahmen · Begründungen):
+${planungText(planung)}
+Wenn eine Pflegeplanung vorliegt: Stelle im Lauf der Prüfung ein bis zwei Fragen dazu und verbinde sie mit KB III–V (Wer im Team übernimmt die Maßnahme? Auf welcher rechtlichen Grundlage? Welche wissenschaftliche Begründung?). Achte darauf, ob das Problem nach PE(S)R vollständig ist, das Ziel konkret, messbar und terminiert ist und jede Maßnahme begründet ist.
+
 - Sie darf nachfragen, wenn sie eine Frage nicht versteht; sei geduldig mit ihrem Deutsch und formuliere die Frage dann einfacher.
 - Frage gezielt nach Recht und nach Pro- und Contra-Argumenten — dort zeigen Prüfungsprotokolle häufig Lücken.
 
 Beginne jetzt: begrüße sie in einem Satz und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
 }
 
-function oralEvalPrompt(o, chat){
-  return `Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
+function oralEvalPrompt(o, chat, planung){
+  return `Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
 
 FALL: ${o.fall.join(" ")}
 
 ERWARTUNG:
 ${o.fragen.map(f => `[KB ${f.kb}] ${f.frage} → ${f.erwartung.map(e=>e.text).join("; ")}`).join("\n")}
+
+PFLEGEPLANUNG DER KANDIDATIN:
+${planungText(planung)}
 
 GESPRÄCH:
 ${(chat||[]).slice(-60).map(m => (m.role==="assistant"?"Prüferin: ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
