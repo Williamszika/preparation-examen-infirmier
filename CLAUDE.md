@@ -34,3 +34,29 @@ Artifact-URL: steht in `README.md` (nie eine neue URL anlegen, immer dieselbe ak
   Note nach dem NRW-Schlüssel aus `ressources/klausur-konventionen.md` (Etude-Repo) —
   **Übungsnote**, nie als amtliche Bewertung ausgeben.
 - Nach jeder neuen Klausur: `python3 build.py`, committen, Artifact mit derselben URL neu veröffentlichen.
+
+## Die öffentliche Seite (Netlify) — seit 03.11.2026
+
+Ihr Wunsch: *„la personne ne doit pas forcément avoir Claude pour ouvrir“* → **https://examen-pflege-uebung.netlify.app**
+(kein Konto nötig: Name eingeben, Code für ein zweites Gerät steht auf der Startseite).
+
+| | |
+|---|---|
+| `site/index.html` | dieselbe Seite wie das Artifact, `MODE = "public"` (von `build.py` erzeugt) |
+| `netlify/functions/versuche.mjs` | Abgaben speichern/lesen (Netlify Blobs, Store `abgaben`, Schlüssel `<uid>/<pruefung>-<versuch>`); die Uhr läuft **auf dem Server** (`start`/`ende`), nach Ablauf + 2 Min nimmt er keine Änderung mehr an |
+| `korrektur.mjs`, `muendlich.mjs` | Hintergrundfunktionen: Prüferin per Anthropic-SDK — **nur wenn ein Schlüssel da ist**. Sonst: `korrekturWartet` / `wartet` → die Seite sagt „liegt bei der Prüferin“ und bietet Selbstkontrolle |
+| `pruefer.mjs` | mündliche Prüferin Zug um Zug; ohne Schlüssel 503 `ki_aus` → die Seite stellt die Fragen aus `m<n>.json` der Reihe nach |
+| `admin.mjs` | `GET /api/admin?token=…` alle Abgaben · `POST /api/admin` `{token, uid, key, bewertung}` trägt eine Korrektur ein (Format wie die JSON-Antwort in `prueferPrompt`; der Server rechnet Punkte und Note mit `auswerten`) · `{token, uid, oral:"m1-<sid>", bewertung}` mündlich · `{…, loeschen:true}` löscht |
+
+**Zugangsschlüssel:** hat sie (am 03.11.2026 im Chat bekommen). Im Repo steht nur der SHA-256-Hash. Nie den Schlüssel committen.
+
+**KI-Korrektur auf Netlify ist (Stand 03.11.2026) aus:** Das AI Gateway lieferte keinen Schlüssel (ihr Netlify-Plan
+`nf_team_dev`, vermutlich Legacy — das Gateway gibt es nur auf Credit-Plänen), und Umgebungsvariablen über das MCP
+zu setzen gab 403. Zwei Wege zum Einschalten, beide macht **sie** in Netlify: (1) Plan auf Credit-basiert umstellen
+→ Gateway injiziert `ANTHROPIC_API_KEY` automatisch, dann neu deployen; (2) unter Project configuration →
+Environment variables `ANTHROPIC_API_KEY` (Scope Functions) eintragen, neu deployen. Bis dahin korrigiert Claude
+in einer Sitzung: Abgaben mit `GET /api/admin` holen, streng am Erwartungshorizont bewerten, mit `POST /api/admin` eintragen.
+
+**Deploy:** Netlify-MCP `deploy-site` (Site-ID oben) gibt einen `npx @netlify/mcp …`-Befehl aus; im Repo-Wurzelordner
+ausführen (vorher `python3 build.py`, `node_modules` nicht mit hochladen). Lockfile und `.nvmrc` (22) müssen bleiben —
+ohne sie scheiterte „Install dependencies“.
