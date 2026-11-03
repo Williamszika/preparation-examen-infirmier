@@ -103,3 +103,15 @@ Korrektur schriftlich getestet (Probelauf): funktioniert, Punkte plausibel, eher
 
 **Diagnose** (Token nötig): `GET /api/admin?test=konfig` (Art der Schlüssel, ohne sie zu zeigen) · `?test=ki[&model=…]`
 (ein Testaufruf) · `?test=modelle` (Agnes-Modellliste).
+
+## Mündlich: Sprachmodus, Zeit, gesprochene Rückmeldung (03.11.2026)
+
+Ihre Wünsche: *„une option … comme Claude le fait et les deux parlent sans même que l'utilisateur voie le texte“* ·
+*„le temps de l'oral : à la fin l'examinateur lui dit que c'est fini, et après il donne ses corrections et ses notes et lui dit quoi corriger“*.
+- Knopf **„🎧 Nur sprechen“** (öffentliche Seite, ElevenLabs an): Vollbild, kein Text (auf Wunsch „Text zeigen“).
+  Ablauf: Prüfer spricht (TTS) → Mikrofon geht an → Ende der Antwort nach **2 s Stille** (Pegel über Web Audio) oder „Ich bin fertig“
+  → ElevenLabs STT → nächste Frage. AudioContext wird im Klick angelegt (sonst auf iPhone stumm); misst er nichts, gilt „Ich bin fertig“.
+- **Prüfungsdauer** wählbar 30 oder 45 Minuten (§ 15). Bei Ablauf sagt der Prüfer „Die Zeit ist um …“ und die Bewertung startet.
+- Nach der Bewertung **spricht der Prüfer die Rückmeldung**: Note, jeder KB, Pflegeplanung, Stärken, was üben, 3 Sprachfehler
+  (`rueckmeldungText`), in Stücken < 1400 Zeichen. Auch im Textmodus, mit Knopf „noch einmal anhören“.
+- Getestet mit Chromium-Fake-Mikrofon: 4 Wechsel Stimme→Antwort, Ende → Bewertung → Rückmeldung → Seite. **Auf ihrem iPhone ungetestet.**

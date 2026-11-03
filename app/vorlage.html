@@ -130,6 +130,26 @@ table{border-collapse:collapse;width:100%;font-size:.9rem}
 th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 .tbl{overflow-x:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Sprachmodus: nur sprechen, kein Text */
+.voice{position:fixed;inset:0;z-index:30;background:var(--ink);color:var(--sheet);display:flex;flex-direction:column;justify-content:space-between;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.v-top{display:flex;justify-content:space-between;gap:12px;align-items:center;opacity:.85}
+.v-zeit{font-variant-numeric:tabular-nums;font-weight:600}
+.v-mitte{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.v-orb{width:min(46vw,190px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--blue) 55%,#fff),var(--blue));display:grid;place-items:center;box-shadow:0 0 0 0 color-mix(in srgb,var(--blue) 60%,transparent);transition:transform .2s}
+.v-orb span{display:block;width:34%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,#fff 70%,transparent);transition:transform .1s}
+.v-orb.spricht{animation:v-puls 1.4s ease-in-out infinite}
+.v-orb.denkt{animation:v-dreh 1.2s linear infinite;opacity:.8}
+.v-orb.hoert{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--good) 55%,#fff),var(--good))}
+@keyframes v-puls{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes v-dreh{to{transform:rotate(360deg)}}
+.v-name{font-size:1.5rem;font-weight:700}
+.v-status{font-size:1.05rem;opacity:.85;min-height:1.5em}
+.v-text{max-width:60ch;white-space:pre-wrap;font-family:var(--f-text);font-size:.95rem;opacity:.9;max-height:30vh;overflow:auto}
+.v-knoepfe{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.v-knoepfe .btn{background:transparent;color:var(--sheet);border-color:color-mix(in srgb,var(--sheet) 50%,transparent)}
+.v-knoepfe .btn.red{background:var(--red);border-color:var(--red);color:#fff}
+@media (prefers-reduced-motion:reduce){.v-orb{animation:none!important}}
 </style>
 
 <header class="top"><div class="in">

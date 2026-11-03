@@ -130,6 +130,26 @@ table{border-collapse:collapse;width:100%;font-size:.9rem}
 th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
 .tbl{overflow-x:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Sprachmodus: nur sprechen, kein Text */
+.voice{position:fixed;inset:0;z-index:30;background:var(--ink);color:var(--sheet);display:flex;flex-direction:column;justify-content:space-between;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.v-top{display:flex;justify-content:space-between;gap:12px;align-items:center;opacity:.85}
+.v-zeit{font-variant-numeric:tabular-nums;font-weight:600}
+.v-mitte{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.v-orb{width:min(46vw,190px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--blue) 55%,#fff),var(--blue));display:grid;place-items:center;box-shadow:0 0 0 0 color-mix(in srgb,var(--blue) 60%,transparent);transition:transform .2s}
+.v-orb span{display:block;width:34%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,#fff 70%,transparent);transition:transform .1s}
+.v-orb.spricht{animation:v-puls 1.4s ease-in-out infinite}
+.v-orb.denkt{animation:v-dreh 1.2s linear infinite;opacity:.8}
+.v-orb.hoert{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--good) 55%,#fff),var(--good))}
+@keyframes v-puls{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes v-dreh{to{transform:rotate(360deg)}}
+.v-name{font-size:1.5rem;font-weight:700}
+.v-status{font-size:1.05rem;opacity:.85;min-height:1.5em}
+.v-text{max-width:60ch;white-space:pre-wrap;font-family:var(--f-text);font-size:.95rem;opacity:.9;max-height:30vh;overflow:auto}
+.v-knoepfe{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.v-knoepfe .btn{background:transparent;color:var(--sheet);border-color:color-mix(in srgb,var(--sheet) 50%,transparent)}
+.v-knoepfe .btn.red{background:var(--red);border-color:var(--red);color:#fff}
+@media (prefers-reduced-motion:reduce){.v-orb{animation:none!important}}
 </style>
 
 <header class="top"><div class="in">
@@ -293,7 +313,7 @@ function audioFreischalten(){ // im Klick aufrufen, sonst spielt iOS später nic
   if(!AUDIO.el){ AUDIO.el = new Audio(); AUDIO.el.setAttribute("playsinline", ""); }
   try{ AUDIO.el.src = stilleWav(); AUDIO.el.play().catch(() => {}); }catch{}
 }
-async function sprechen(text){
+async function sprechen(text, warten){
   const t = String(text||"").replace("[ENDE]", "").trim(); if(!t) return;
   try{ speechSynthesis.cancel(); }catch{}
   if(MODE === "public" && S.stimme){
@@ -302,10 +322,16 @@ async function sprechen(text){
       if(!r.ok) throw new Error(r.status);
       const b = await r.blob(); if(AUDIO.url) URL.revokeObjectURL(AUDIO.url); AUDIO.url = URL.createObjectURL(b);
       if(!AUDIO.el){ AUDIO.el = new Audio(); AUDIO.el.setAttribute("playsinline", ""); }
-      AUDIO.el.src = AUDIO.url; AUDIO.el.volume = 1; AUDIO.el.playbackRate = 1; await AUDIO.el.play(); return;
+      AUDIO.el.src = AUDIO.url; AUDIO.el.volume = 1; AUDIO.el.playbackRate = 1;
+      const ende = new Promise(res => { AUDIO.el.onended = res; AUDIO.el.onpause = res; AUDIO.el.onerror = res; });
+      await AUDIO.el.play(); if(warten) await ende; return;
     }catch(e){ console.warn("tts", e); }
   }
-  try{ const u = new SpeechSynthesisUtterance(t); u.lang = "de-DE"; u.rate = .85; u.volume = 1; speechSynthesis.speak(u); }catch{}
+  try{
+    const u = new SpeechSynthesisUtterance(t); u.lang = "de-DE"; u.rate = .85; u.volume = 1;
+    const ende = new Promise(res => { u.onend = res; u.onerror = res; });
+    speechSynthesis.speak(u); if(warten) await Promise.race([ende, sleep(Math.max(4000, t.length * 110))]);
+  }catch{}
 }
 function stummschalten(){ try{ speechSynthesis.cancel(); }catch{} try{ AUDIO.el && AUDIO.el.pause(); }catch{} }
 
@@ -680,6 +706,26 @@ function renderOralList(app){
   <p class="muted" style="max-width:68ch">Du bereitest den Fall vor. Dann stellt dir die Prüferin Fragen, eine nach der anderen, und fragt nach. Am Ende bekommst du eine Rückmeldung zu Inhalt und Sprache. Schreib deine Antworten oder diktiere sie mit dem Mikrofon deiner Tastatur.</p></section>
   <div class="list">${list.map(o => `<div class="it"><div><b>${esc(o.titel)}</b><div class="muted" style="font-size:.88rem">${esc(o.person)} · ${esc(o.setting)} · KB ${o.kb.join(", ")}</div></div><a class="btn pri" style="text-decoration:none" href="#${o.id}">Öffnen</a></div>`).join("") || `<p class="muted">Noch kein Fall da.</p>`}</div>`;
 }
+/* ---------- Gesprochene Rückmeldung nach der mündlichen Prüfung ---------- */
+const ZEIT_UM = "Die Zeit ist um. Vielen Dank, die Prüfung ist beendet.";
+function rueckmeldungText(r){
+  if(!r) return "";
+  const t = [`Hier ist meine Rückmeldung. Ihre Übungsnote ist ${r.note}.`];
+  for(const k of (r.kb || [])) t.push(`Kompetenzbereich ${k.kb}: ${k.urteil}`);
+  if(r.planung) t.push(`Zu Ihrer Pflegeplanung: ${r.planung}`);
+  if((r.staerken || []).length) t.push("Das war gut: " + r.staerken.join(". ") + ".");
+  if((r.ueben || []).length) t.push("Das sollten Sie als Nächstes üben: " + r.ueben.join(". ") + ".");
+  if((r.sprache || []).length) t.push("Zur Sprache: " + r.sprache.slice(0, 3).map(s => `Statt „${s.falsch}“ sagt man „${s.richtig}“.`).join(" "));
+  t.push("Alles steht jetzt auch auf dem Bildschirm. Viel Erfolg beim Üben.");
+  return t.join(" ").replace(/\s+/g, " ");
+}
+async function vorlesenLang(text){ // in Stücken unter 1400 Zeichen, Satz für Satz
+  const saetze = String(text).match(/[^.!?]+[.!?]+["“”]?\s*|[^.!?]+$/g) || [text];
+  let stueck = "";
+  for(const s of saetze){ if((stueck + s).length > 1300 && stueck){ await sprechen(stueck, true); stueck = ""; } stueck += s; }
+  if(stueck.trim()) await sprechen(stueck, true);
+}
+
 /* ---------- Verlauf der mündlichen Prüfungen ---------- */
 const ORAL_H = "oral-historie-v1";
 function oralArchiv(o, st, status){
@@ -730,7 +776,7 @@ function renderOral(app, o){
     app.innerHTML = `<div style="height:16px"></div><article class="sheet">
       <div><span class="lbl">Mündliche Prüfung · Vorbereitung</span><h1>${esc(o.titel)}</h1><p class="muted">${esc(o.person)} · ${esc(o.setting)} · Kompetenzbereiche ${o.kb.join(", ")}</p></div>
       ${st.vorbStart ? `<div class="clock" style="position:static;border-radius:6px" id="clock"><div><span class="lbl" style="color:inherit;opacity:.8">Vorbereitungszeit</span><div class="t" id="rest"></div></div></div>` : ""}
-      ${!st.vorbStart ? `<div class="locked"><div class="lock" aria-hidden="true">🔒</div><p><b>Der Fall ist verschlossen.</b><br><span class="muted">Vorbereitungszeit: <input id="vmin" type="number" min="5" max="60" value="${st.vorbMin||20}" style="width:4em;font:inherit"> Minuten. Die echte Vorbereitungszeit steht nicht in deinen Unterlagen; frag deine Schule.</span></p><button class="btn pri big" id="ready">Ich bin bereit</button></div>` : `
+      ${!st.vorbStart ? `<div class="locked"><div class="lock" aria-hidden="true">🔒</div><p><b>Der Fall ist verschlossen.</b><br><span class="muted">Vorbereitungszeit: <input id="vmin" type="number" min="5" max="60" value="${st.vorbMin||20}" style="width:4em;font:inherit"> Minuten. Dauer der Prüfung: <select id="pmin" style="font:inherit"><option value="30"${(st.dauerMin||30)==30?" selected":""}>30</option><option value="45"${st.dauerMin==45?" selected":""}>45</option></select> Minuten (§ 15: 30–45). Die echte Vorbereitungszeit steht nicht in deinen Unterlagen; frag deine Schule.</span></p><button class="btn pri big" id="ready">Ich bin bereit</button></div>` : `
       <section><span class="lbl">Fallsituation</span><div class="fall">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></section>
       <section class="stack"><span class="lbl">Bereite vor</span><ul style="margin:0">${o.vorbereitung.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
       ${DATA.tipps ? `<section class="stack note info"><span class="lbl">Gerüst: vier Leitfragen</span><ol style="margin:0">${DATA.tipps.leitfragen.map(x => `<li>${esc(x)}</li>`).join("")}</ol><span class="src">${esc(DATA.tipps.leitfragenHinweis)} ${quelleLinks(DATA.tipps.leitfragenQ)}</span></section>` : ""}
@@ -743,7 +789,7 @@ function renderOral(app, o){
       </section>
       <button class="btn pri big" id="go">Prüfung beginnen</button>`}
       <a href="#muendlich" class="muted">← zurück</a></article>`;
-    if(!st.vorbStart){ $("#ready").onclick = () => { st.vorbMin = Math.max(5, Math.min(60, Number($("#vmin").value)||20)); st.vorbStart = Date.now(); persist(); render(); }; return; }
+    if(!st.vorbStart){ $("#ready").onclick = () => { st.vorbMin = Math.max(5, Math.min(60, Number($("#vmin").value)||20)); st.dauerMin = Number($("#pmin").value) || 30; st.vorbStart = Date.now(); persist(); render(); }; return; }
     $("#notes").oninput = e => { st.notizen = e.target.value; persist(); };
     if(!Array.isArray(st.planung) || !st.planung.length) st.planung = [{p:"",z:"",m:"",b:""}];
     const felder = [["p","Pflegeproblem (PE(S)R)","Problem · Ursache (Etiologie) · Symptome (nur bei aktuellen Problemen) · Ressourcen"],["z","Pflegeziele","konkret, messbar, realistisch, terminiert; Nah- und Fernziel"],["m","Pflegemaßnahmen","wer, was, wann, wie oft, womit"],["b","Begründungen","warum diese Maßnahme das Ziel erreicht (Fachwissen, Expertenstandard)"]];
@@ -758,18 +804,22 @@ function renderOral(app, o){
   }
   const ended = st.phase === "ende";
   app.innerHTML = `<div style="height:16px"></div><article class="sheet">
-    <div class="row" style="justify-content:space-between"><div><span class="lbl">Mündliche Prüfung · ${esc(o.titel)}</span><h2>Gespräch mit der Prüferin</h2></div><span class="pill run" id="dauer"></span></div>
+    <div class="row" style="justify-content:space-between"><div><span class="lbl">Mündliche Prüfung · ${esc(o.titel)}</span><h2>Gespräch mit ${esc(pName())}</h2></div><span class="pill run" id="dauer"></span></div>
     <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}${(st.planung||[]).some(r => r.p||r.z||r.m||r.b) ? `<div class="tbl" style="margin-top:8px"><table><thead><tr><th>Pflegeproblem</th><th>Pflegeziele</th><th>Pflegemaßnahmen</th><th>Begründungen</th></tr></thead><tbody>${st.planung.filter(r => r.p||r.z||r.m||r.b).map(r => `<tr><td style="white-space:pre-wrap">${esc(r.p)}</td><td style="white-space:pre-wrap">${esc(r.z)}</td><td style="white-space:pre-wrap">${esc(r.m)}</td><td style="white-space:pre-wrap">${esc(r.b)}</td></tr>`).join("")}</tbody></table></div>` : ""}</details>
     <div class="chat" id="chat"></div>
     ${ended ? "" : `<label class="lbl" for="ans">Deine Antwort</label><textarea id="ans" style="min-height:100px" placeholder="Schreib oder diktiere deine Antwort …"></textarea>
-    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 ${esc(pName())} noch einmal hören</button>${MODE === "public" && ((S.stimme && window.MediaRecorder) || SR) ? `<button class="btn ghost" id="mic" type="button">🎤 Sprechen</button>` : ""}<button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
+    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 ${esc(pName())} noch einmal hören</button>${MODE === "public" && ((S.stimme && window.MediaRecorder) || SR) ? `<button class="btn ghost" id="mic" type="button">🎤 Sprechen</button>` : ""}<button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>
+    ${MODE === "public" && S.stimme && window.MediaRecorder && navigator.mediaDevices ? `<button class="btn pri big" id="voice" type="button">🎧 Nur sprechen — wie ein echtes Gespräch</button><p class="muted" style="font-size:.85rem;margin:0">${esc(pName())} spricht, dein Mikrofon geht danach von selbst an, und wenn du still bist, antwortet ${esc(pName())}. Du siehst keinen Text. Das Gespräch wird trotzdem gespeichert und bewertet.</p>` : ""}`}
     <div id="eval" class="stack"></div>
     <div class="row"><button class="btn ghost" id="reset">Fall neu beginnen</button><a href="#muendlich" class="muted">← zurück</a></div>
   </article>`;
   const chat = $("#chat");
   const draw = () => { chat.innerHTML = st.chat.map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?esc(pName()):"Du"}</span>${esc(m.content.replace("[ENDE]",""))}</div>`).join(""); };
   draw();
-  const upd = () => { $("#dauer").textContent = fmtT(Date.now() - st.pStart) + " min"; }; upd(); tick = setInterval(upd, 1000);
+  const dauerMs = (st.dauerMin || 30) * 60000;
+  const upd = () => { const v = Date.now() - st.pStart; $("#dauer").textContent = fmtT(v) + " / " + (st.dauerMin || 30) + " min";
+    if(v >= dauerMs && st.phase === "pruefung" && !document.querySelector(".voice")){ st.chat.push({ role:"assistant", content: ZEIT_UM }); persist(); draw(); clearInterval(tick); sprechen(ZEIT_UM, true).then(() => bewerten()); } };
+  upd(); tick = setInterval(upd, 1000);
   const speak = t => sprechen(t);
   const offlineFrage = () => {
     const gestellt = st.chat.filter(m => m.role === "assistant").length;
@@ -797,14 +847,110 @@ function renderOral(app, o){
     <div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(r.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(r.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>
     ${(r.sprache||[]).length?`<div class="lang"><span class="lbl">Sprache</span><ul>${r.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>`:""}
     <details><summary class="lbl" style="cursor:pointer">Erwartungshorizont</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(e => `<li>${esc(e.text)}<div class="src">${esc(e.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details>`; };
-  const bewerten = async () => {
+  const bewerten = async (opt) => {
+    opt = opt || {};
     st.phase = "ende"; persist();
-    $("#eval").innerHTML = `<p class="note info">Die Prüferin bewertet das Gespräch … (ein bis drei Minuten)</p>`;
-    try{ const r = await B.oralEval(o, st); st.bewertung = r; persist(); oralArchiv(o, st, "bewertet"); showOralEval(r); }
+    $("#eval").innerHTML = `<p class="note info">${esc(pName())} bewertet das Gespräch … (ein bis drei Minuten)</p>`;
+    try{ const r = await B.oralEval(o, st); st.bewertung = r; persist(); oralArchiv(o, st, "bewertet"); if(!opt.still) showOralEval(r);
+      if(!opt.still && MODE === "public" && S.stimme){ const knopf = document.createElement("button"); knopf.className = "btn ghost"; knopf.textContent = "🔊 Rückmeldung noch einmal anhören"; knopf.onclick = () => { audioFreischalten(); vorlesenLang(rueckmeldungText(r)); }; $("#eval").prepend(knopf); vorlesenLang(rueckmeldungText(r)); }
+      return r; }
     catch(e){
-      if(e && e.code === "wartet_oral"){ st.wartet = Date.now(); persist(); oralArchiv(o, st, "wartet"); $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><details open><summary class="lbl" style="cursor:pointer">Erwartungshorizont zum Selbstvergleich</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(x => `<li>${esc(x.text)}<div class="src">${esc(x.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details><button class="btn ghost" id="retry">Ist die Bewertung da? Neu laden</button>`; $("#retry").onclick = bewerten; return; }
-      $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><button class="btn red" id="retry">Noch einmal bewerten</button>`; $("#retry").onclick = bewerten; }
+      if(e && e.code === "wartet_oral"){ st.wartet = Date.now(); persist(); oralArchiv(o, st, "wartet"); if(opt.still) return null; $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><details open><summary class="lbl" style="cursor:pointer">Erwartungshorizont zum Selbstvergleich</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(x => `<li>${esc(x.text)}<div class="src">${esc(x.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details><button class="btn ghost" id="retry">Ist die Bewertung da? Neu laden</button>`; $("#retry").onclick = () => bewerten(); return; }
+      if(opt.still) return null;
+      $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><button class="btn red" id="retry">Noch einmal bewerten</button>`; $("#retry").onclick = () => bewerten(); }
   };
+  /* ---------- Sprachmodus: nur sprechen, kein Text (wie der Sprachmodus von Claude) ---------- */
+  const sprachmodus = async () => {
+    const R = pRolle();
+    let aktiv = true, stream = null, ctx = null, stopJetzt = null, beendet = false;
+    // AudioContext noch im Klick anlegen — sonst bleibt er auf iPhone/Chrome stumm (Pegel immer 0)
+    try{ ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); }catch{}
+    const ov = document.createElement("div"); ov.className = "voice"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "Sprachmodus");
+    ov.innerHTML = `<div class="v-top"><span class="lbl" style="color:inherit">Mündliche Prüfung · ${esc(o.titel)}</span><span id="v-zeit" class="v-zeit"></span></div>
+      <div class="v-mitte"><div class="v-orb" id="v-orb"><span id="v-level"></span></div><div class="v-name">${esc(R.name)}</div><div class="v-status" id="v-status">verbinde …</div><div id="v-text" class="v-text" hidden></div></div>
+      <div class="v-knoepfe"><button class="btn" id="v-fertig" type="button" disabled>Ich bin fertig</button><button class="btn" id="v-text-btn" type="button">Text zeigen</button><button class="btn red" id="v-ende" type="button">Beenden und bewerten</button><button class="btn" id="v-raus" type="button">Zurück zum Text</button></div>`;
+    document.body.append(ov); document.body.style.overflow = "hidden";
+    const status = (t, art) => { $("#v-status").textContent = t; $("#v-orb").className = "v-orb " + (art || ""); };
+    const zeitT = setInterval(() => { const z = $("#v-zeit"); if(z) z.textContent = fmtT(Date.now() - st.pStart) + " min"; }, 1000);
+    const zeige = () => { const v = $("#v-text"); if(v && !v.hidden) v.textContent = st.chat.slice(-2).map(m => (m.role==="assistant" ? R.name : "Du") + ": " + m.content.replace("[ENDE]","")).join("\n\n"); };
+    $("#v-text-btn").onclick = () => { const v = $("#v-text"); v.hidden = !v.hidden; $("#v-text-btn").textContent = v.hidden ? "Text zeigen" : "Text verbergen"; zeige(); };
+    const schliessen = () => { aktiv = false; stummschalten(); if(stopJetzt) stopJetzt(); clearInterval(zeitT); if(stream) stream.getTracks().forEach(t => t.stop()); try{ ctx && ctx.close(); }catch{} ov.remove(); document.body.style.overflow = ""; };
+    $("#v-raus").onclick = () => { schliessen(); draw(); };
+    $("#v-ende").onclick = () => { stummschalten(); abschluss(); };
+    $("#v-fertig").onclick = () => { if(stopJetzt) stopJetzt(); };
+    audioFreischalten();
+    try{ stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+    catch(e){ status("Mikrofon nicht erlaubt. Erlaube es in den Browser-Einstellungen.", ""); return; }
+    if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = ctx.createAnalyser(); an.fftSize = 1024; ctx.createMediaStreamSource(stream).connect(an);
+    const buf = new Float32Array(an.fftSize);
+    const pegel = () => { an.getFloatTimeDomainData(buf); let q = 0; for(const x of buf) q += x*x; return Math.sqrt(q / buf.length); };
+    /* Zuhören: Aufnahme, bis nach dem Sprechen 2 Sekunden Stille kommen (oder „Ich bin fertig“) */
+    const zuhoeren = () => new Promise(res => {
+      try{ ctx.resume(); }catch{}
+      const typ = ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg"].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
+      const rec = typ ? new MediaRecorder(stream, { mimeType: typ }) : new MediaRecorder(stream); const teile = [];
+      let gesprochen = false, stilleSeit = 0, start = Date.now(), fertig = false, maxP = 0, hinweis = false;
+      const schwelle = Math.min(0.05, Math.max(0.015, pegel() * 3));   // Grundrauschen × 3, begrenzt
+      rec.ondataavailable = ev => { if(ev.data && ev.data.size) teile.push(ev.data); };
+      rec.onstop = () => res(gesprochen ? new Blob(teile, { type: rec.mimeType || typ || "audio/webm" }) : null);
+      const ende = () => { if(fertig) return; fertig = true; clearInterval(iv); stopJetzt = null; $("#v-fertig") && ($("#v-fertig").disabled = true); try{ rec.stop(); }catch{ res(null); } };
+      stopJetzt = ende; $("#v-fertig").disabled = false;
+      const iv = setInterval(() => {
+        if(!aktiv) return ende();
+        const p = pegel(); maxP = Math.max(maxP, p); const lv = $("#v-level"); if(lv) lv.style.transform = `scale(${1 + Math.min(1.2, p * 12)})`;
+        if(maxP === 0 && Date.now() - start > 3000){   // kein Pegel messbar: dann von Hand beenden
+          if(!hinweis){ hinweis = true; status("Sprich jetzt — und tippe danach auf „Ich bin fertig“.", "hoert"); }
+          gesprochen = true; if(Date.now() - start > 180000) ende(); return;
+        }
+        if(p > schwelle){ gesprochen = true; stilleSeit = 0; } else if(gesprochen){ stilleSeit = stilleSeit || Date.now(); if(Date.now() - stilleSeit > 2000) ende(); }
+        if(!gesprochen && Date.now() - start > 20000) ende();          // 20 s nichts gesagt
+        if(Date.now() - start > 180000 || zeitUm()) ende();            // höchstens 3 Minuten am Stück, oder Prüfungszeit um
+      }, 100);
+      rec.start(250); status("Ich höre zu …", "hoert");
+    });
+    const sagen = async text => { status("spricht …", "spricht"); zeige(); await sprechen(text, true); };
+    const zeitUm = () => Date.now() - st.pStart >= (st.dauerMin || 30) * 60000;
+    /* Ende: bewerten lassen, dann die Rückmeldung laut sagen, dann die Seite mit allem zeigen */
+    const abschluss = async () => {
+      if(!aktiv || beendet) return; beendet = true; stopJetzt && stopJetzt();
+      $("#v-fertig").disabled = true; status("bewertet Ihr Gespräch …", "denkt");
+      const r = await bewerten({ still: true });
+      if(r && aktiv){ status("Rückmeldung", "spricht"); const v = $("#v-text"); if(v){ v.hidden = false; v.textContent = rueckmeldungText(r); } $("#v-text-btn").textContent = "Text verbergen"; await vorlesenLang(rueckmeldungText(r)); }
+      else if(aktiv){ await sagen("Ihr Gespräch ist gespeichert. Die Bewertung bekommen Sie später."); }
+      schliessen(); render();
+    };
+    try{
+      while(aktiv && !beendet){
+        if(zeitUm()){ st.chat.push({ role:"assistant", content: ZEIT_UM }); persist(); await sagen(ZEIT_UM); return abschluss(); }
+        const letzte = st.chat[st.chat.length - 1];
+        if(!letzte || letzte.role === "user"){
+          status("denkt …", "denkt");
+          let text;
+          try{ text = await B.pruefer(o, st, () => {}); }
+          catch(e){ if(e && e.code === "ki_aus"){ st.offline = true; text = offlineFrage(); } else { status(kiFehler(e), ""); await sleep(4000); continue; } }
+          if(!aktiv || beendet) break;
+          st.chat.push({ role:"assistant", content:text }); persist();
+          await sagen(text);
+          if(text.includes("[ENDE]")) return abschluss();
+          continue;
+        }
+        if(!aktiv || beendet) break;
+        const audio = await zuhoeren();
+        if(!aktiv || beendet) break;
+        if(!audio){ await sagen("Ich habe nichts gehört. Bitte antworten Sie jetzt."); continue; }
+        status("versteht …", "denkt");
+        let txt = "";
+        try{ const r = await fetch("/api/stt", { method:"POST", headers:{ "content-type": audio.type.split(";")[0] || "audio/webm" }, body: audio }); const j = await r.json(); if(!r.ok) throw new Error(j.error || r.status); txt = j.text || ""; }
+        catch(e){ await sagen("Entschuldigung, die Verbindung war schlecht. Bitte wiederholen Sie Ihre Antwort."); continue; }
+        if(!txt.trim()){ await sagen("Entschuldigung, ich habe Sie nicht verstanden. Bitte wiederholen Sie."); continue; }
+        st.chat.push({ role:"user", content: txt.trim() }); persist(); zeige();
+        if(/^\W*(ende|beenden|stopp)\W*$/i.test(txt.trim())){ await sagen("Gut, dann beenden wir die Prüfung hier."); return abschluss(); }
+      }
+    }finally{ if(aktiv){ /* bleibt offen bis zum Knopf */ } }
+  };
+  if($("#voice")) $("#voice").onclick = () => sprachmodus();
+
   $("#reset").onclick = () => { oralArchiv(o, st, st.bewertung ? "bewertet" : st.wartet ? "wartet" : "abgebrochen"); LS.set(key, null); render(); };
   if(ended){ if(st.bewertung) showOralEval(st.bewertung); else bewerten(); return; }
   $("#vor").onclick = () => { audioFreischalten(); const last = [...st.chat].reverse().find(m => m.role === "assistant"); if(last) speak(last.content); };
