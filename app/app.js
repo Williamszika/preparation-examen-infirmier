@@ -146,7 +146,7 @@ function render(){
   clearInterval(tick);
   const r = route();
   for(const a of document.querySelectorAll("#tabs a")) a.removeAttribute("aria-current");
-  const tab = r === "muendlich" || OR[r] ? "muendlich" : r === "ergebnisse" ? "ergebnisse" : r === "abgaben" ? "abgaben" : "start";
+  const tab = r === "muendlich" || OR[r] ? "muendlich" : ["ergebnisse","abgaben","tipps"].includes(r) ? r : "start";
   $("#tab-" + tab)?.setAttribute("aria-current","page");
   const app = $("#app");
   if(r === "abgaben") return renderAdmin(app);
@@ -155,6 +155,7 @@ function render(){
   if(OR[r]) return renderOral(app, OR[r]);
   if(r === "muendlich") return renderOralList(app);
   if(r === "ergebnisse") return renderResults(app);
+  if(r === "tipps") return renderTipps(app);
   renderStart(app);
 }
 
@@ -374,6 +375,7 @@ function renderOral(app, o){
       ${!st.vorbStart ? `<div class="locked"><div class="lock" aria-hidden="true">🔒</div><p><b>Der Fall ist verschlossen.</b><br><span class="muted">Vorbereitungszeit: <input id="vmin" type="number" min="5" max="60" value="${st.vorbMin||20}" style="width:4em;font:inherit"> Minuten. Die echte Vorbereitungszeit steht nicht in deinen Unterlagen; frag deine Schule.</span></p><button class="btn pri big" id="ready">Ich bin bereit</button></div>` : `
       <section><span class="lbl">Fallsituation</span><div class="fall">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></section>
       <section class="stack"><span class="lbl">Bereite vor</span><ul style="margin:0">${o.vorbereitung.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+      ${DATA.tipps ? `<section class="stack note info"><span class="lbl">Gerüst: vier Leitfragen</span><ol style="margin:0">${DATA.tipps.leitfragen.map(x => `<li>${esc(x)}</li>`).join("")}</ol><span class="src">${esc(DATA.tipps.leitfragenHinweis)} ${quelleLinks(DATA.tipps.leitfragenQ)}</span></section>` : ""}
       <label class="lbl" for="notes">Deine Notizen (Stichworte)</label><textarea id="notes">${esc(st.notizen)}</textarea>
       <button class="btn pri big" id="go">Prüfung beginnen</button>`}
       <a href="#muendlich" class="muted">← zurück</a></article>`;
@@ -436,6 +438,24 @@ function renderOral(app, o){
   $("#send").onclick = () => { const t = $("#ans").value.trim(); if(!t) return; st.chat.push({role:"user", content:t}); persist(); $("#ans").value = ""; draw(); ask(); };
   $("#stop").onclick = () => bewerten();
   if(!st.chat.length) ask();
+}
+
+/* ---------- Tipps aus der Recherche ---------- */
+function quelleLinks(qs){ const Q = (DATA.tipps && DATA.tipps.quellen) || {}; return (qs||[]).map(k => Q[k] ? `<a href="${esc(Q[k].u)}" target="_blank" rel="noopener" title="${esc(Q[k].t)}">[${esc(k)}]</a>` : "").join(" "); }
+function renderTipps(app){
+  const T = DATA.tipps;
+  if(!T){ app.innerHTML = `<p class="note warn" style="margin-top:16px">Keine Tipps vorhanden.</p>`; return; }
+  app.innerHTML = `<section class="intro"><span class="lbl">Tipps · Recherche vom 03.11.2026</span><h1>So wird gefragt, und hier liegen die Fallen</h1>
+    <p class="muted" style="max-width:68ch">Echte NRW-Klausuren sind nicht öffentlich. Diese Tipps kommen aus Gesetzen, Leitfäden anderer Bundesländer, einer NRW-Lehrerschulung, Lehrbüchern und einem Gerichtsurteil. Die Nummer in Klammern führt zur Quelle. Was deine Schule sagt, gilt immer zuerst.</p></section>
+  <article class="sheet">
+    <section class="stack"><h2>Der Ablauf</h2><ul style="margin:0;display:flex;flex-direction:column;gap:6px">${T.ablauf.map(x => `<li>${esc(x.text)} <span class="src">${quelleLinks(x.q)}</span></li>`).join("")}</ul></section>
+    <section class="stack"><h2>So liest du den Fall</h2><ol style="margin:0">${T.lesen.map(x => `<li>${esc(x)}</li>`).join("")}</ol><span class="src">${quelleLinks(T.lesenQ)}</span></section>
+    <section class="stack"><h2>Die Fallen</h2><div class="tbl"><table><thead><tr><th>Falle</th><th>So machst du es richtig</th><th></th></tr></thead><tbody>${T.fallen.map(f => `<tr><td>${esc(f.falle)}</td><td>${esc(f.richtig)}</td><td class="src">${quelleLinks(f.q)}</td></tr>`).join("")}</tbody></table></div></section>
+    <section class="stack"><h2>Die Operatoren</h2><div class="tbl"><table><tbody>${T.operatoren.map(o => `<tr><th>Niveau ${esc(o.niveau)}</th><td>${esc(o.liste)}</td></tr>`).join("")}</tbody></table></div><span class="src">${esc(T.operatorenHinweis)} ${quelleLinks(T.operatorenQ)}</span></section>
+    <section class="stack"><h2>Die mündliche Prüfung</h2><ul style="margin:0;display:flex;flex-direction:column;gap:6px">${T.muendlich.map(x => `<li>${esc(x.text)} <span class="src">${quelleLinks(x.q)}</span></li>`).join("")}</ul>
+      <div class="note info"><span class="lbl">Vier Leitfragen als Gerüst</span><ol style="margin:4px 0 0">${T.leitfragen.map(x => `<li>${esc(x)}</li>`).join("")}</ol><span class="src">${esc(T.leitfragenHinweis)} ${quelleLinks(T.leitfragenQ)}</span></div></section>
+    <details><summary class="lbl" style="cursor:pointer">Alle Quellen</summary><ol style="font-size:.85rem">${Object.entries(T.quellen).map(([k,v]) => `<li value="${esc(k)}"><a href="${esc(v.u)}" target="_blank" rel="noopener">${esc(v.t)}</a></li>`).join("")}</ol></details>
+  </article>`;
 }
 
 /* ---------- Ergebnisse ---------- */

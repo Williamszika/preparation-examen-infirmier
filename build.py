@@ -12,7 +12,8 @@ for e in pr:
     s = sum(a["punkte"] for a in e["aufgaben"])
     assert abs(s - e["gesamtpunkte"]) < 1e-9, f"{e['id']}: Summe {s} != {e['gesamtpunkte']}"
 data = {"matrix": json.loads((R / "matrix/matrix.json").read_text(encoding="utf-8")),
-        "pruefungen": pr, "muendlich": load("muendlich")}
+        "pruefungen": pr, "muendlich": load("muendlich"),
+        "tipps": json.loads((R / "recherche/tipps.json").read_text(encoding="utf-8"))}
 js = json.dumps(data, ensure_ascii=False)
 shared = (R / "app/prompts.js").read_text(encoding="utf-8")
 app = (R / "app/app.js").read_text(encoding="utf-8")

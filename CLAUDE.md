@@ -15,7 +15,9 @@ einem Matrix-Thema, steht es in `luecken` — nicht auffüllen.
 | `matrix/` | die Matrix ihrer Schule (PDF, Kurs 23-26) und `matrix.json` (Wortlaut der CE/UE) |
 | `pruefungen/k<Klausur><variante>.json` | schriftliche Aufsichtsarbeiten, 120 Min, je ≈ 100 Punkte, AFB ≈ 30/40/30 |
 | `muendlich/m<n>.json` | Fälle für die mündliche Prüfung (KB III, IV, V) |
-| `muendlich/PRUEFER.md` | wie Claude im Gespräch Prüferin wird |
+| `muendlich/PRUEFER.md` | wie Claude im Gespräch Prüferin wird (öffentlicher Link, für jede Claude-Unterhaltung) |
+| `pruefungen/STIL.md` | **Regeln für jede neue Klausur** (aus der Recherche) — vor dem Schreiben lesen |
+| `recherche/` | Internet-Recherche zum Examen (Fragestil, Fallen, mündlich) und `tipps.json` für den Reiter „Tipps“ |
 | `app/vorlage.html` → `build.py` → `app/index.html` | die Übungsseite (Artifact) |
 
 **Ihr Plan (03.11.2026):** Tag 1 = Klausur 1 (alter Mensch, Pflegeheim), Tag 2 = Klausur 2

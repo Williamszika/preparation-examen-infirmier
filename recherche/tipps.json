@@ -1,0 +1,289 @@
+{
+ "_quelle": "recherche/examen-nrw-fragestil.md (Recherche vom 03.11.2026). Alles hier sind Internetquellen, keine Unterlagen ihrer Schule. Echte NRW-Klausuren sind nicht öffentlich.",
+ "quellen": {
+  "1": {
+   "t": "PflAPrV § 14 (amtlich)",
+   "u": "https://www.gesetze-im-internet.de/pflaprv/__14.html"
+  },
+  "2": {
+   "t": "PflAPrV § 15 (amtlich)",
+   "u": "https://www.gesetze-im-internet.de/pflaprv/__15.html"
+  },
+  "5": {
+   "t": "Bezirksregierung Düsseldorf (amtlich, NRW)",
+   "u": "https://www.brd.nrw.de/Themen/Gesundheit-Soziales/Gesundheitsfachberufe/Pflegefachfrauen-und-Pflegefachmaenner"
+  },
+  "6": {
+   "t": "MAGS NRW, INTRO NW, Schulung Prüfungsgestaltung 2022 (Land NRW)",
+   "u": "https://www.mags.nrw/system/files/media/document/file/intro_nw_implementierung_2_gesamtpraesentation_version_zur_veroeffentlichung_aktualisiert.pdf"
+  },
+  "7": {
+   "t": "Leitfaden Baden-Württemberg zur schriftlichen Abschlussprüfung, 2022 (Land BW)",
+   "u": "https://sozialministerium.baden-wuerttemberg.de/fileadmin/redaktion/m-sm/intern/downloads/Downloads_Gesundheits-_Pflegeberufe/Leitfaden_schriftliche-Abschlusspruefung-Berufsfachschulen-Pflege.pdf"
+  },
+  "8": {
+   "t": "CurAP/Neksa: Kompetenzorientierte schriftliche Prüfungen gestalten, 2021 (Berlin/Brandenburg)",
+   "u": "https://doi.org/10.26127/BTUOpen-5655"
+  },
+  "9": {
+   "t": "CurAP/Neksa: Musterklausuren, 2021 (Berlin/Brandenburg)",
+   "u": "https://www.eh-berlin.de/fileadmin/Redaktion/2_PDF/FORSCHUNG/Alte_Dateien/Projekt_CurAP/Didaktische_Impulse_Handreichungen/Musterklausuren_zur_Handreichung_CurAP_Neksa_2021.pdf"
+  },
+  "10": {
+   "t": "Neksa: Kompetenzorientierte mündliche Prüfungen gestalten (Brandenburg)",
+   "u": "https://www-docs.b-tu.de/fg-bildungswissenschaften-gesundheit/public/Forschung/Neksa/Neksa_Handlungsempfehlung%20m%C3%BCndliche%20Pr%C3%BCfung_Juni%202022.pdf"
+  },
+  "11": {
+   "t": "Hamburg, Sozialbehörde: Handreichung mündliche Abschlussprüfung, Stand 03/2026 (amtlich)",
+   "u": "https://www.hamburg.de/resource/blob/1159722/dd9679bbdc4e389fe7d05f78ff813317/handreichung-muendliche-abschlusspruefung-gemaess-pflbg-data.pdf"
+  },
+  "12": {
+   "t": "Klepsch/Herrmann: Prüfung Pflegefachperson mündlich und praktisch, Elsevier 2025 (Verlag)",
+   "u": "https://shop.elsevier.de/media/wysiwyg/PDF/DE/9783437251535_Klepsch_Pflegepruefung.pdf"
+  },
+  "14": {
+   "t": "VG Bremen, Urteil vom 13.02.2026, 1 K 2780/25 (Gericht)",
+   "u": "https://www.verwaltungsgericht.bremen.de/sixcms/media.php/13/25_2780_K_1.pdf"
+  }
+ },
+ "ablauf": [
+  {
+   "text": "Drei Aufsichtsarbeiten à 120 Minuten, in der Regel an drei aufeinanderfolgenden Werktagen. Jede einzelne muss mindestens „ausreichend“ sein — eine gute Arbeit gleicht eine schlechte nicht aus.",
+   "q": [
+    "1"
+   ]
+  },
+  {
+   "text": "Die Aufgaben schlägt deine eigene Pflegeschule vor, die Behörde wählt aus. Zwei Lehrkräfte deiner Schule benoten jede Arbeit. In NRW führt die Bezirksregierung den Vorsitz (ohne Fragerecht). Darum zählen die Unterlagen und Operatorenlisten deiner Schule am meisten.",
+   "q": [
+    "1",
+    "5"
+   ]
+  },
+  {
+   "text": "Die drei Fälle unterscheiden sich in Altersstufe, Umfeld und Versorgungsbereich — so wie in deiner Matrix (alter Mensch/Pflegeheim · Erwachsene/ambulant · Kind/Krankenhaus).",
+   "q": [
+    "1"
+   ]
+  },
+  {
+   "text": "NRW-Lehrkräfte wurden geschult, neben dem Fall eine Ebene mitzudenken: Tag 1 gesellschaftlich, Tag 2 gesellschaftlich-beruflich, Tag 3 interprofessionell. Rechne also mit Fragen zu Versorgungssystem, Recht oder Team — nicht nur zur Pflege am Bett.",
+   "q": [
+    "6"
+   ]
+  },
+  {
+   "text": "Ein Fall ist höchstens etwa eine Seite (ca. 500 Wörter), mit wörtlicher Rede und mehreren Sichtweisen. Plane 10–15 Minuten nur zum Lesen ein.",
+   "q": [
+    "7",
+    "8"
+   ]
+  },
+  {
+   "text": "Alle Themen des Tages hängen an EINEM Menschen: Pflegeprozess, Expertenstandard, Beratung/Kommunikation, Recht und Krankheit/Medikament kommen im selben Fall vor.",
+   "q": [
+    "7",
+    "9"
+   ]
+  }
+ ],
+ "lesen": [
+  "Lies den Fall zweimal. Beim zweiten Mal mit Stift.",
+  "Wer ist beteiligt? Wie sieht jede Person die Lage (wörtliche Rede!)?",
+  "Welche Pflegephänomene, welche Ressourcen, welches Setting?",
+  "Was bleibt offen? Wenn Informationen fehlen, darfst und sollst du das sagen („Die Informationen reichen nicht aus, um … — ich würde noch erfragen …“)."
+ ],
+ "lesenQ": [
+  "8"
+ ],
+ "fallen": [
+  {
+   "falle": "Allgemein antworten, ohne den Fall",
+   "richtig": "Jede Aussage an den Fall binden: „Bei Frau L. zeigt sich das daran, dass …“",
+   "q": [
+    "8",
+    "7"
+   ]
+  },
+  {
+   "falle": "Mehr in den Fall hineinlesen, als dasteht",
+   "richtig": "Beschreiben, deuten, bewerten trennen. Fehlende Information benennen ist eine gültige Antwort.",
+   "q": [
+    "8"
+   ]
+  },
+  {
+   "falle": "Den zweiten Operator übersehen (z. B. Ressourcen nur nennen statt bewerten)",
+   "richtig": "Aufgabe zerlegen: jeden Operator einzeln und sichtbar abarbeiten (erst nennen, dann begründen).",
+   "q": [
+    "8",
+    "7"
+   ]
+  },
+  {
+   "falle": "Mengenangabe ignorieren",
+   "richtig": "Genau so viele Punkte wie verlangt — die Punkte sind „je“ Nennung verteilt.",
+   "q": [
+    "7",
+    "9"
+   ]
+  },
+  {
+   "falle": "Nennungen ohne Trennschärfe (dreimal fast dasselbe)",
+   "richtig": "Verschiedene Bereiche abdecken (z. B. verschiedene SIS-Themenfelder oder ABEDL).",
+   "q": [
+    "8",
+    "9"
+   ]
+  },
+  {
+   "falle": "Nur Stichworte",
+   "richtig": "Wer in ganzen, zusammenhängenden Sätzen antwortete, bekam in der Erprobung häufig mehr Punkte.",
+   "q": [
+    "8",
+    "9"
+   ]
+  },
+  {
+   "falle": "Aufgabe leer lassen",
+   "richtig": "Etwas schreiben: Teilpunkte gibt es auch für Teilwissen und Praxiswissen.",
+   "q": [
+    "8"
+   ]
+  },
+  {
+   "falle": "Folgefehler (Teilaufgabe b falsch, dann c unlösbar)",
+   "richtig": "Zwischenergebnisse klar hinschreiben; die Teilaufgaben bauen aufeinander auf.",
+   "q": [
+    "8"
+   ]
+  },
+  {
+   "falle": "Problem aus Sicht der Pflege statt „aus Sicht“ der Person",
+   "richtig": "Wenn die Aufgabe die Sicht der Person verlangt: ihre eigene Wahrnehmung (wie in der SIS) formulieren.",
+   "q": [
+    "7",
+    "9"
+   ]
+  },
+  {
+   "falle": "Expertenstandard nur erwähnen",
+   "richtig": "Ihn als Raster benutzen: Risikobereiche des Standards einzeln am Fall prüfen, dann eine Gesamteinschätzung.",
+   "q": [
+    "7",
+    "9"
+   ]
+  },
+  {
+   "falle": "PESR unvollständig",
+   "richtig": "Problem + Einflussfaktoren (Ätiologie) + Symptome + Ressourcen.",
+   "q": [
+    "7"
+   ]
+  },
+  {
+   "falle": "Maßnahme ohne Begründung",
+   "richtig": "Kette: Problem → Grund → individuelle Maßnahme → wie prüfe ich die Wirksamkeit. Oft 1 Punkt für die Maßnahme, 1 Punkt für die Begründung.",
+   "q": [
+    "7",
+    "9"
+   ]
+  },
+  {
+   "falle": "Ärztliche Anordnung: nur „ich darf das“",
+   "richtig": "Anordnung (schriftlich) + eigene Qualifikation + Durchführungsverantwortung; nur übernehmen, wofür man ausgebildet ist.",
+   "q": [
+    "7"
+   ]
+  },
+  {
+   "falle": "Ethisches Dilemma nur als „Problem“ beschreiben",
+   "richtig": "Definition (zwei sich ausschließende Handlungsoptionen) + die Optionen + Kriterien/Prinzipien + begründete Entscheidung.",
+   "q": [
+    "7"
+   ]
+  },
+  {
+   "falle": "„Beurteilen“ mit persönlicher Meinung",
+   "richtig": "Beurteilen = an Kriterien prüfen, ohne persönlich Stellung zu beziehen. „Diskutieren“ = Pro und Contra bis zu einer begründeten Bewertung.",
+   "q": [
+    "7"
+   ]
+  }
+ ],
+ "operatoren": [
+  {
+   "niveau": "I",
+   "liste": "nennen / benennen / angeben (ohne Kommentar) · beschreiben · ergänzen · identifizieren · vervollständigen"
+  },
+  {
+   "niveau": "II",
+   "liste": "begründen · ableiten · darstellen · erarbeiten · erklären (kausal herleiten) · erläutern · formulieren · vergleichen · zuordnen"
+  },
+  {
+   "niveau": "III",
+   "liste": "beurteilen (Kriterien, ohne persönliche Stellung) · bewerten (an Wert- oder wissenschaftlichen Kriterien) · diskutieren (Pro/Contra → begründete Bewertung) · entwickeln"
+  }
+ ],
+ "operatorenQ": [
+  "7"
+ ],
+ "operatorenHinweis": "So definiert der Leitfaden Baden-Württemberg die Operatoren. Deine Schule kann eine eigene Liste haben — die gilt dann vor dieser.",
+ "muendlich": [
+  {
+   "text": "30–45 Minuten, Kompetenzbereiche III, IV und V an einer komplexen Aufgabe. Der Fall kommt aus einem anderen Versorgungsbereich und einer anderen Altersstufe als deine praktische Prüfung. Schwerpunkt: deine Berufsrolle, Team, Einrichtung, Gesellschaft.",
+   "q": [
+    "2"
+   ]
+  },
+  {
+   "text": "Vorbereitungszeit: in Hamburg 30 Minuten, in Brandenburg und im Elsevier-Modell 20 Minuten. Für NRW wurde keine Angabe gefunden — frag deine Schule.",
+   "q": [
+    "11",
+    "10",
+    "12"
+   ]
+  },
+  {
+   "text": "Typischer Einstieg: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“ Danach ein Fachgespräch; die Prüfenden passen ihre Fragen an.",
+   "q": [
+    "10"
+   ]
+  },
+  {
+   "text": "Biete dein Wissen von dir aus an, schlage Brücken zwischen den Themen und bring zu jedem Thema ein Praxisbeispiel.",
+   "q": [
+    "12"
+   ]
+  },
+  {
+   "text": "Nachfragen ist erlaubt, wenn du eine Frage nicht verstehst. Prüfende sollen bei geringeren Sprachkenntnissen geduldig sein.",
+   "q": [
+    "12",
+    "10"
+   ]
+  },
+  {
+   "text": "Ein echter Fall vor Gericht (2026): Die Note 6 wurde u. a. damit begründet, dass rechtliches Wissen fehlte und Pro- und Contra-Argumente „schleppend“ kamen. Recht und Pro/Contra also gezielt üben.",
+   "q": [
+    "14"
+   ]
+  },
+  {
+   "text": "Bewertungsmodell aus einem Lehrbuch: Fallbezug und theoriegeleitete Begründung 60 %, Fachsprache/Kommunikation 20 %, Selbstständigkeit 10 %, Zielgerichtetheit 10 %. Kein NRW-Schlüssel gefunden.",
+   "q": [
+    "12"
+   ]
+  }
+ ],
+ "leitfragen": [
+  "Fassen Sie den vorliegenden Fall mit eigenen Worten zusammen.",
+  "Erläutern Sie die intra- und interprofessionellen Handlungsbedarfe …",
+  "Stellen Sie dar, welche Gesetze, Verordnungen oder Leitlinien … zum Tragen kommen könnten.",
+  "Beschreiben Sie, welche wissenschaftlichen Erkenntnisse und/oder berufsethischen Werthaltungen … (die Pflegefachperson) berücksichtigen könnte."
+ ],
+ "leitfragenQ": [
+  "11"
+ ],
+ "leitfragenHinweis": "So stehen die Leitfragen in Hamburg unter dem Fall (gekürzt, „…“ = ausgelassen). Für NRW nicht belegt — als Gerüst für deine Vorbereitung trotzdem gut."
+}
