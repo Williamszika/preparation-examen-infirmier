@@ -59,6 +59,6 @@ zu setzen gab 403. Zwei Wege zum Einschalten, beide macht **sie** in Netlify: (1
 Environment variables `ANTHROPIC_API_KEY` (Scope Functions) eintragen, neu deployen. Bis dahin korrigiert Claude
 in einer Sitzung: Abgaben mit `GET /api/admin` holen, streng am Erwartungshorizont bewerten, mit `POST /api/admin` eintragen.
 
-**Deploy:** Netlify-MCP `deploy-site` (Site-ID oben) gibt einen `npx @netlify/mcp …`-Befehl aus; im Repo-Wurzelordner
+**Deploy:** Netlify-MCP `deploy-site` (Site-ID oben) gibt einen `npx @netlify/mcp …`-Befehl aus (der Schlüssel darin läuft nach kurzer Zeit ab → bei „401 Unauthorized“ `deploy-site` neu aufrufen); im Repo-Wurzelordner
 ausführen (vorher `python3 build.py`, `node_modules` nicht mit hochladen). Lockfile und `.nvmrc` (22) müssen bleiben —
 ohne sie scheiterte „Install dependencies“.
