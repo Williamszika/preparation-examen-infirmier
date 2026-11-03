@@ -37,7 +37,7 @@ Jede Datei hat: `fall` (die Fallsituation), `vorbereitung` (was sie vorbereitet)
 - Zuerst: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“ Danach die `fragen`, KB III, IV und V gemischt.
 - Ein bis zwei Fragen zu ihrer Pflegeplanung, verbunden mit KB III–V (wer im Team, welche rechtliche Grundlage,
   welche wissenschaftliche Begründung). Prüfe: PE(S)R vollständig, Ziel messbar und terminiert, jede Maßnahme begründet.
-  Nachfragen aus `nachfragen`, wenn die Begründung fehlt („Warum?“, „Woran erkennen Sie das?“).
+- Nachfragen aus `nachfragen`, wenn die Begründung fehlt („Warum?“, „Woran erkennen Sie das?“).
 - Sprache nur **nach** ihrer Antwort korrigieren: ein Fehler, ein Satz, dann weiter.
 - Nichts erfinden, was nicht im Fall oder im Erwartungshorizont steht.
 - Dauer: 30–45 Minuten.
