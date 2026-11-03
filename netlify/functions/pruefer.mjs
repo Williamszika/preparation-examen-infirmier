@@ -6,7 +6,7 @@ export default async (req) => {
   if(!bd || !okUid(bd.uid)) return bad("Anfrage ungültig");
   const o = DATA.muendlich.find(f => f.id === bd.fall);
   if(!o) return bad("Fall unbekannt");
-  if(!kiAn()) return bad("ki_aus", 503);
+  if(!(await kiAn())) return bad("ki_aus", 503);
   const chat = cleanChat(bd.chat);
   const messages = cleanChat([{ role: "user", content: oralRules(o, bd.notizen, bd.planung) }, ...chat]);
   if(messages[messages.length - 1].role !== "user") messages.push({ role: "user", content: "(weiter)" });

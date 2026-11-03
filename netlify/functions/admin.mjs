@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { store, bad, body, okUid, okKey } from "../lib/common.mjs";
+import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice } from "../lib/common.mjs";
 import { DATA, auswerten } from "../lib/shared.mjs";
 
 /* SHA-256 des Zugangsschlüssels der Besitzerin (der Schlüssel selbst steht nicht im Repo). ADMIN_TOKEN als Umgebungsvariable geht auch. */
@@ -9,7 +9,9 @@ const erlaubt = given => { const token = Netlify.env.get("ADMIN_TOKEN"); return 
 export default async (req) => {
   const s = store();
   if(req.method === "GET"){
-    if(!erlaubt(new URL(req.url).searchParams.get("token"))) return bad("Zugang verweigert", 403);
+    const sp = new URL(req.url).searchParams;
+    if(!erlaubt(sp.get("token"))) return bad("Zugang verweigert", 403);
+    if(sp.get("einstellungen")) return Response.json(await einstellungen());
     const { blobs } = await s.list();
     const docs = [];
     for(const b of blobs){ const d = await s.get(b.key, { type: "json" }); if(d) docs.push({ ...d, pid: d.uid }); }
@@ -19,6 +21,9 @@ export default async (req) => {
      {token, uid, key, bewertung:{aufgaben:[…], staerken, ueben, gesamt, gesamtFr}, von}  → schriftlich
      {token, uid, oral:"m1-<sid>", bewertung:{kb, note, …}}                                → mündlich */
   const bd = await body(req);
+  if(bd && erlaubt(bd.token) && bd.einstellungen && typeof bd.einstellungen === "object"){
+    await configSetzen(bd.einstellungen); return Response.json(await einstellungen());
+  }
   if(bd && erlaubt(bd.token) && okUid(bd.uid) && bd.loeschen && (okKey(bd.key) || bd.oral)){
     await s.delete(bd.uid + "/" + (bd.oral ? "oral-" + String(bd.oral).replace(/[^a-z0-9-]/gi, "") : bd.key)); return Response.json({ ok: true });
   }
@@ -39,5 +44,14 @@ export default async (req) => {
   await s.setJSON(k, d);
   return Response.json({ ok: true, summe: d.korrektur.summe, prozent: d.korrektur.prozent, note: d.korrektur.note });
 };
+
+/* Zustand der Einstellungen — ohne die Schlüssel selbst */
+async function einstellungen(){
+  const c = await ladeConfig(true);
+  const out = { ki: await kiAn(), stimme: await stimmeAn(), stimmeId: await agnesVoice(), anthropicGesetzt: !!c.anthropicKey, elevenGesetzt: !!c.elevenKey, stimmen: [] };
+  const k = await elevenKey();
+  if(k){ try{ const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": k } }); if(r.ok){ const j = await r.json(); out.stimmen = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name, info: [v.labels?.gender, v.labels?.accent, v.labels?.age].filter(Boolean).join(", ") })).slice(0, 80); } else out.stimmenFehler = r.status; }catch(e){ out.stimmenFehler = "netz"; } }
+  return out;
+}
 
 export const config = { path: "/api/admin", method: ["GET", "POST"], rateLimit: { windowLimit: 60, windowSize: 60, aggregateBy: ["ip", "domain"] } };

@@ -24,11 +24,39 @@ export function cleanChat(chat){
   return out;
 }
 
-export const kiAn = () => !!(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+/* Einstellungen, die die Besitzerin auf der Seite einträgt (Reiter „Abgaben“ → Einstellungen).
+   Liegen verschlüsselt in Netlify Blobs, werden nie an den Browser zurückgegeben. */
+const cfgStore = () => getStore({ name: "einstellungen", consistency: "strong" });
+let cfgCache = null, cfgZeit = 0;
+export async function config(frisch){
+  if(!frisch && cfgCache && Date.now() - cfgZeit < 30000) return cfgCache;
+  cfgCache = (await cfgStore().get("config", { type: "json" })) || {}; cfgZeit = Date.now();
+  return cfgCache;
+}
+export async function configSetzen(neu){
+  const alt = await config(true);
+  const c = { ...alt };
+  for(const k of ["anthropicKey", "elevenKey", "elevenVoice"]){
+    if(typeof neu[k] !== "string") continue;
+    const v = neu[k].trim();
+    if(v) c[k] = v.slice(0, 300); else delete c[k];
+  }
+  await cfgStore().setJSON("config", c); cfgCache = c; cfgZeit = Date.now();
+  return c;
+}
+const anthropicKey = async () => process.env.ANTHROPIC_API_KEY || (await config()).anthropicKey || "";
+export const kiAn = async () => !!(process.env.ANTHROPIC_AUTH_TOKEN || await anthropicKey());
+export const stimmeAn = async () => !!(process.env.ELEVENLABS_API_KEY || (await config()).elevenKey);
+export const elevenKey = async () => process.env.ELEVENLABS_API_KEY || (await config()).elevenKey || "";
+/* Agnes' Stimme: Standard „Sarah“ (EXAVITQu4vr4xnSDxMaL, aus der Liste freier Stimmen in cours-allemand/api/_lib/eleven.js) */
+export const AGNES_STANDARD = "EXAVITQu4vr4xnSDxMaL";
+export const agnesVoice = async () => (await config()).elevenVoice || process.env.ELEVENLABS_VOICE_ID || AGNES_STANDARD;
 
 export async function claudeText(prompt, { model, max_tokens }){
   const messages = typeof prompt === "string" ? [{ role: "user", content: prompt }] : prompt;
-  const msg = await new Anthropic().messages.create({ model, max_tokens, messages });
+  const key = process.env.ANTHROPIC_API_KEY ? undefined : (await config()).anthropicKey;
+  const client = key ? new Anthropic({ apiKey: key }) : new Anthropic();
+  const msg = await client.messages.create({ model, max_tokens, messages });
   return msg.content.filter(c => c.type === "text").map(c => c.text).join("").trim();
 }
 export function parseJson(text){

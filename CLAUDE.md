@@ -67,3 +67,23 @@ in einer Sitzung: Abgaben mit `GET /api/admin` holen, streng am Erwartungshorizo
 **Deploy:** Netlify-MCP `deploy-site` (Site-ID oben) gibt einen `npx @netlify/mcp …`-Befehl aus (der Schlüssel darin läuft nach kurzer Zeit ab → bei „401 Unauthorized“ `deploy-site` neu aufrufen); im Repo-Wurzelordner
 ausführen (vorher `python3 build.py`, `node_modules` nicht mit hochladen). Lockfile und `.nvmrc` (22) müssen bleiben —
 ohne sie scheiterte „Install dependencies“.
+
+## Agnes — die Prüferin (seit 03.11.2026)
+
+Ihr Wunsch: *„utiliser Agnes comme professeur et une voix ElevenLabs“*. Die Prüferin heißt in allen Prompts, auf der
+Seite und in `PRUEFER.md` **Agnes** (Pflegepädagogin und Prüferin); Korrekturen tragen „Agnes (Prüferin)“.
+
+**Schlüssel ohne Umgebungsvariablen:** Netlify erlaubte über das MCP keine Umgebungsvariablen (403). Deshalb trägt sie
+die Schlüssel selbst auf der Seite ein: Reiter **Abgaben** (Zugangsschlüssel) → **Einstellungen: Agnes** →
+Anthropic-Schlüssel (Korrektur + mündliche Prüferin), ElevenLabs-Schlüssel (Stimme + Spracherkennung), Stimme wählen.
+Gespeichert im Blob-Store `einstellungen` (Schlüssel `config`), nie an den Browser zurückgegeben; Umgebungsvariablen
+`ANTHROPIC_API_KEY` / `ELEVENLABS_API_KEY` gingen vor, falls es sie gibt.
+
+| | |
+|---|---|
+| `netlify/functions/status.mjs` | `GET /api/status` → `{ki, stimme}` (was eingeschaltet ist) |
+| `tts.mjs` | `POST /api/tts {text}` → MP3 von ElevenLabs (`eleven_multilingual_v2`), jeder Satz im Blob-Store `tts` zwischengespeichert |
+| `stt.mjs` | `POST /api/stt` (Audio aus dem Browser) → ElevenLabs `scribe_v1`, Deutsch → `{text}` |
+| Stimme | Standard **Sarah** `EXAVITQu4vr4xnSDxMaL` (aus der Liste freier Stimmen in `cours-allemand/api/_lib/eleven.js`); sie kann in den Einstellungen eine andere wählen |
+
+Ohne ElevenLabs-Schlüssel liest die Stimme des Geräts vor und der 🎤-Knopf nutzt die Spracherkennung des Browsers.

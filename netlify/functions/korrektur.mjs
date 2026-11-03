@@ -12,7 +12,7 @@ export default async (req) => {
   if(!ex) return;
   if(d.status === "laeuft"){ d.status = "abgegeben"; d.abgegeben = Math.min(Date.now(), d.ende); }
   d.endgueltig = true;
-  if(!kiAn()){ delete d.korrekturFehler; d.korrekturWartet = Date.now(); d.geaendert = Date.now(); await s.setJSON(k, d); return; }
+  if(!(await kiAn())){ delete d.korrekturFehler; d.korrekturWartet = Date.now(); d.geaendert = Date.now(); await s.setJSON(k, d); return; }
   try{
     const text = await claudeText(prueferPrompt(ex, d.antworten), { model: MODEL_KORREKTUR(), max_tokens: 12000 });
     d.korrektur = auswerten(ex, parseJson(text), "Claude (Prüferin)");

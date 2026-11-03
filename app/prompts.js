@@ -7,7 +7,7 @@ function note(p){ if(p>=90)return[1,"sehr gut"]; if(p>=75)return[2,"gut"]; if(p>
 const BAUSTELLEN = "1 Kasus, 2 Genus, 3 Verbstellung, 4 falsche Freunde, 5 Komposita, 6 Siezen, 7 feste Präpositionen";
 
 function prueferPrompt(ex, antworten){
-  return `Du bist Prüferin in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW) und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
+  return `Du bist Agnes, Pflegepädagogin und Prüferin in der staatlichen Abschlussprüfung der generalistischen Pflegeausbildung (NRW), und korrigierst eine schriftliche Aufsichtsarbeit. Die Kandidatin ist französischsprachig und lernt Deutsch (Niveau A2→B1).
 
 REGELN
 - Bewerte jede Aufgabe NUR am Erwartungshorizont unten. Fachlich gleichwertige Antworten, die dasselbe meinen, zählen (andere Wörter, Stichpunkte sind erlaubt). Erfinde keine zusätzlichen Anforderungen und kein Fachwissen außerhalb des Erwartungshorizonts.
@@ -62,7 +62,7 @@ function planungText(planung){
 }
 
 function oralRules(o, notizen, planung){
-  return `Du bist Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
+  return `Du bist Agnes, Pflegepädagogin und Prüferin in der mündlichen staatlichen Abschlussprüfung der Pflegeausbildung (§ 15 PflAPrV, NRW). Geprüft werden die Kompetenzbereiche III, IV und V an einem komplexen Fall. Die Kandidatin ist französischsprachig, Deutsch-Niveau A2→B1.
 
 So prüfst du:
 - Sprich Deutsch, freundlich und sachlich, siezen. Kurze, klare Sätze (B1).
@@ -86,11 +86,13 @@ Wenn eine Pflegeplanung vorliegt: Stelle im Lauf der Prüfung ein bis zwei Frage
 - Sie darf nachfragen, wenn sie eine Frage nicht versteht; sei geduldig mit ihrem Deutsch und formuliere die Frage dann einfacher.
 - Frage gezielt nach Recht und nach Pro- und Contra-Argumenten — dort zeigen Prüfungsprotokolle häufig Lücken.
 
-Beginne jetzt: begrüße sie in einem Satz und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
+Deine Antworten werden vorgelesen: schreib nur gesprochene Sprache, keine Listen, keine Sternchen, keine Überschriften.
+
+Beginne jetzt: stell dich in einem Satz vor („Guten Tag, ich bin Agnes, Ihre Prüferin.“) und bitte sie: „Fassen Sie zusammen, worum es in der Fallsituation im Wesentlichen geht.“`;
 }
 
 function oralEvalPrompt(o, chat, planung){
-  return `Du bist Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
+  return `Du bist Agnes, Prüferin (mündliche Abschlussprüfung Pflege, KB III, IV, V). Bewerte das Gespräch NUR am Erwartungshorizont. Antworte nur mit JSON: {"kb":[{"kb":"III","urteil":"1–2 Sätze","fehlt":["…"]}],"planung":"1–2 Sätze zur Pflegeplanung: PE(S)R vollständig? Ziel konkret, messbar, terminiert? Maßnahmen konkret (wer, was, wann, wie oft, womit) und begründet? Leer lassen, wenn keine Pflegeplanung vorliegt.","note":1,"staerken":["…"],"ueben":["…"],"sprache":[{"falsch":"…","richtig":"…","baustelle":1}],"fr":"Gesamturteil in 2 französischen Sätzen"}. "note" ist eine ganze Zahl von 1 bis 6. Baustellen: ${BAUSTELLEN}. Sprachfehler senken die Note nur, wenn der Inhalt unverständlich wird.
 
 FALL: ${o.fall.join(" ")}
 
@@ -101,5 +103,5 @@ PFLEGEPLANUNG DER KANDIDATIN:
 ${planungText(planung)}
 
 GESPRÄCH:
-${(chat||[]).slice(-60).map(m => (m.role==="assistant"?"Prüferin: ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
+${(chat||[]).slice(-60).map(m => (m.role==="assistant"?"Agnes (Prüferin): ":"Kandidatin: ") + String(m.content).slice(0,4000)).join("\n")}`;
 }
