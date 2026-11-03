@@ -90,6 +90,14 @@ Gespeichert im Blob-Store `einstellungen` (Schlüssel `config`), nie an den Brow
 
 Ohne ElevenLabs-Schlüssel liest die Stimme des Geräts vor und der 🎤-Knopf nutzt die Spracherkennung des Browsers.
 
-**Diagnose:** `GET /api/admin?test=ki&token=…` probiert die Modelle mit ihrem Anthropic-Schlüssel und nennt den Fehler.
-Am 03.11.2026: **401 invalid x-api-key** — der eingetragene Anthropic-Schlüssel ist ungültig; sie muss einen gültigen
-(`sk-ant-…`, console.anthropic.com) neu eintragen. Bis dahin stellt die Seite die Fragen aus dem Fall der Reihe nach.
+**KI = Agnes AI (seit 03.11.2026).** Ihr „Agnes“ ist **Agnes AI** (agnes-ai.com, Sapiens AI): Den Schlüssel hat sie ins
+KI-Feld der Einstellungen gesetzt (beginnt nicht mit `sk-ant-` → wird als Agnes AI erkannt). OpenAI-kompatibel,
+`https://apihub.agnes-ai.com/v1/chat/completions`, Modell **agnes-3.0-flash** (Ersatz agnes-2.5-flash; agnes-2.0-flash
+fehlt in `/v1/models`). Kostenloses Konto → Ratenlimit (429). Ein `sk-ant-…`-Schlüssel im selben Feld schaltet auf Claude um.
+**Agnes AI ist schwächer:** erfand im Test Sprachfehler. Deshalb mündlich ein **geführter Ablauf** (`gefuehrt()` in
+`pruefer.mjs`): Fragen wörtlich aus `m<n>.json` (vorher die Pflegeplanungs-Frage), das Modell wählt nur „Nachfrage aus
+der Liste“ oder „weiter“; Sprachkorrektur erst in der Bewertung. Eröffnung immer fest: „Guten Tag, ich bin <Stimme>, Ihr(e) Prüfer(in) …“.
+Korrektur schriftlich getestet (Probelauf): funktioniert, Punkte plausibel, eher streng.
+
+**Diagnose** (Token nötig): `GET /api/admin?test=konfig` (Art der Schlüssel, ohne sie zu zeigen) · `?test=ki[&model=…]`
+(ein Testaufruf) · `?test=modelle` (Agnes-Modellliste).
