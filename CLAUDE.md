@@ -90,7 +90,9 @@ Gespeichert im Blob-Store `einstellungen` (Schlüssel `config`), nie an den Brow
 
 Ohne ElevenLabs-Schlüssel liest die Stimme des Geräts vor und der 🎤-Knopf nutzt die Spracherkennung des Browsers.
 
-**KI = Agnes AI (seit 03.11.2026).** Ihr „Agnes“ ist **Agnes AI** (agnes-ai.com, Sapiens AI): Den Schlüssel hat sie ins
+**Stand 03.11.2026 abends: KI = Claude** (sie hat einen `sk-ant-…`-Schlüssel eingetragen; getestet: Sonnet 5.5 korrigiert, Haiku 5.5 prüft mündlich frei).
+
+**Vorher: KI = Agnes AI.** Ihr „Agnes“ ist **Agnes AI** (agnes-ai.com, Sapiens AI): Den Schlüssel hat sie ins
 KI-Feld der Einstellungen gesetzt (beginnt nicht mit `sk-ant-` → wird als Agnes AI erkannt). OpenAI-kompatibel,
 `https://apihub.agnes-ai.com/v1/chat/completions`, Modell **agnes-3.0-flash** (Ersatz agnes-2.5-flash; agnes-2.0-flash
 fehlt in `/v1/models`). Kostenloses Konto → Ratenlimit (429). Ein `sk-ant-…`-Schlüssel im selben Feld schaltet auf Claude um.
