@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice, prueferin, kiTest, nameAus, istMann, MODEL_KORREKTUR, MODEL_GESPRAECH } from "../lib/common.mjs";
+import { store, bad, body, okUid, okKey, config as ladeConfig, configSetzen, kiAn, stimmeAn, elevenKey, agnesVoice, prueferin, kiTest, nameAus, istMann, kiAnbieter, AGNES_BASE, MODEL_KORREKTUR, MODEL_GESPRAECH } from "../lib/common.mjs";
 import { DATA, auswerten } from "../lib/shared.mjs";
 
 /* SHA-256 des Zugangsschlüssels der Besitzerin (der Schlüssel selbst steht nicht im Repo). ADMIN_TOKEN als Umgebungsvariable geht auch. */
@@ -12,7 +12,23 @@ export default async (req) => {
     const sp = new URL(req.url).searchParams;
     if(!erlaubt(sp.get("token"))) return bad("Zugang verweigert", 403);
     if(sp.get("einstellungen")) return Response.json(await einstellungen());
-    if(sp.get("test") === "ki") return Response.json(await Promise.all([...new Set([MODEL_KORREKTUR(), MODEL_GESPRAECH(), "claude-sonnet-4-5", "claude-haiku-4-5"])].map(m => kiTest(m))));
+    if(sp.get("test") === "konfig"){
+      // Art der eingetragenen Schlüssel erkennen — ohne sie zu verraten (nur die ersten Zeichen und die Länge)
+      const c = await ladeConfig(true);
+      const art = k => !k ? "leer" : k.startsWith("sk-ant-") ? "Anthropic" : k.startsWith("sk_") ? "ElevenLabs" : k.startsWith("agent_") ? "ElevenLabs-Agent-ID" : "unbekannt";
+      const info = k => k ? { art: art(k), anfang: k.slice(0, k.startsWith("sk-ant-") ? 7 : 4), laenge: k.length } : { art: "leer" };
+      const out = { anthropicFeld: info(c.anthropicKey), elevenFeld: info(c.elevenKey), agenten: [] };
+      const ek = await elevenKey();
+      if(ek){ try{ const r = await fetch("https://api.elevenlabs.io/v1/convai/agents?page_size=30", { headers: { "xi-api-key": ek } }); out.agentenStatus = r.status; if(r.ok){ const j = await r.json(); out.agenten = (j.agents || []).map(a => ({ id: a.agent_id, name: a.name })); } }catch(e){ out.agentenStatus = "netz"; } }
+      return Response.json(out);
+    }
+    if(sp.get("test") === "ki") return Response.json(await kiTest(sp.get("model") || MODEL_KORREKTUR(), sp.get("model") || ""));
+    if(sp.get("test") === "modelle"){
+      const ki = await kiAnbieter(); if(ki.art !== "agnes") return Response.json({ anbieter: ki.art });
+      const r = await fetch(AGNES_BASE + "/models", { headers: { authorization: "Bearer " + ki.key } });
+      const j = await r.json().catch(() => ({}));
+      return Response.json({ status: r.status, modelle: (j.data || []).map(m => m.id) });
+    }
     const { blobs } = await s.list();
     const docs = [];
     for(const b of blobs){ const d = await s.get(b.key, { type: "json" }); if(d) docs.push({ ...d, pid: d.uid }); }

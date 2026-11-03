@@ -36,7 +36,7 @@ export async function config(frisch){
 export async function configSetzen(neu){
   const alt = await config(true);
   const c = { ...alt };
-  for(const k of ["anthropicKey", "elevenKey", "elevenVoice", "elevenVoiceName", "elevenVoiceMale"]){
+  for(const k of ["anthropicKey", "elevenKey", "elevenVoice", "elevenVoiceName", "elevenVoiceMale", "agnesModel"]){
     if(typeof neu[k] !== "string") continue;
     const v = neu[k].trim();
     if(v) c[k] = v.slice(0, 300); else delete c[k];
@@ -67,16 +67,44 @@ export const prueferin = async () => {
 export const prueferinName = async () => (await prueferin()).name;
 export { nameAus, istMann };
 /* Kurztest der KI für die Besitzerin: welches Modell antwortet, und wenn nicht, warum */
-export async function kiTest(model){
-  try{ const t = await claudeText("Antworte nur mit: ok", { model, max_tokens: 5 }); return { model, ok: true, text: t }; }
+export async function kiTest(model, agnesModel){
+  try{ const ki = await kiAnbieter(); const t = await claudeText("Antworte nur mit: ok", { model, max_tokens: 20, agnesModel }); return { anbieter: ki.art, model: ki.art === "agnes" ? (agnesModel || (await config()).agnesModel || MODEL_AGNES()) : model, ok: true, text: t }; }
   catch(e){ return { model, ok: false, fehler: String((e && (e.message || e.error?.message)) || e).slice(0, 300), status: e && e.status }; }
 }
 export const agnesVoice = async () => (await config()).elevenVoice || process.env.ELEVENLABS_VOICE_ID || AGNES_STANDARD;
 
-export async function claudeText(prompt, { model, max_tokens }){
+/* Welche KI? Ein Schlüssel „sk-ant-…“ → Anthropic (Claude). Jeder andere Schlüssel im KI-Feld → Agnes AI
+   (agnes-ai.com, OpenAI-kompatibel, Basis https://apihub.agnes-ai.com/v1). Ihr Wunsch: „utiliser Agnes comme professeur“. */
+export const AGNES_BASE = "https://apihub.agnes-ai.com/v1";
+/* Textmodelle laut /v1/models am 03.11.2026: agnes-3.0-flash, agnes-2.5-flash, agnes-2.5-pro-alpha/-beta (agnes-2.0-flash fehlt). */
+export const MODEL_AGNES = () => Netlify.env.get("AGNES_MODEL") || "agnes-3.0-flash";
+const AGNES_ERSATZ = ["agnes-2.5-flash"];
+export async function kiAnbieter(){
+  if(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) return { art: "anthropic" };
+  const k = (await config()).anthropicKey || "";
+  if(!k) return { art: "" };
+  return k.startsWith("sk-ant-") ? { art: "anthropic", key: k } : { art: "agnes", key: k };
+}
+export async function claudeText(prompt, { model, max_tokens, agnesModel }){
   const messages = typeof prompt === "string" ? [{ role: "user", content: prompt }] : prompt;
-  const key = process.env.ANTHROPIC_API_KEY ? undefined : (await config()).anthropicKey;
-  const client = key ? new Anthropic({ apiKey: key }) : new Anthropic();
+  const ki = await kiAnbieter();
+  if(ki.art === "agnes"){
+    const erst = agnesModel || (await config()).agnesModel || MODEL_AGNES();
+    let r, txt;
+    for(const m of [erst, ...AGNES_ERSATZ.filter(x => x !== erst && !agnesModel)]){
+      r = await fetch(AGNES_BASE + "/chat/completions", {
+        method: "POST",
+        headers: { "authorization": "Bearer " + ki.key, "content-type": "application/json" },
+        body: JSON.stringify({ model: m, max_tokens, temperature: 0.3, messages })
+      });
+      txt = await r.text();
+      if(r.ok || r.status !== 500) break;   // 500 „temporarily unavailable“ → nächstes Modell
+    }
+    if(!r.ok){ const e = new Error("Agnes AI " + r.status + ": " + txt.slice(0, 200)); e.status = r.status; throw e; }
+    const j = JSON.parse(txt);
+    return String(j.choices?.[0]?.message?.content || "").trim();
+  }
+  const client = ki.key ? new Anthropic({ apiKey: ki.key }) : new Anthropic();
   const msg = await client.messages.create({ model, max_tokens, messages });
   return msg.content.filter(c => c.type === "text").map(c => c.text).join("").trim();
 }
