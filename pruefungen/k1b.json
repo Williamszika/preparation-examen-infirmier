@@ -1,0 +1,837 @@
+{
+ "id": "k1b",
+ "tag": 1,
+ "klausur": 1,
+ "variante": "B",
+ "dauerMin": 120,
+ "titel": "Frau Lindner — die letzten Tage im Seniorenzentrum",
+ "person": "alter Mensch",
+ "setting": "Pflegeheim",
+ "matrix": [
+  {
+   "kb": "I.1",
+   "themen": [
+    "CE 8 UE 3 Begleitung im Sterbeprozess (Blockwoche)",
+    "CE 2b UE 2 Mund- und Zahnpflege",
+    "CE 7 UE 3 Basale Stimulation",
+    "CE 2b UE 5 Atembeobachtung",
+    "CE 2b UE 4 Obstipation und Obstipationsprophylaxe",
+    "CE 5 UE 5 Anatomie und Physiologie Atmung"
+   ]
+  },
+  {
+   "kb": "II.1",
+   "themen": [
+    "CE 3 UE 2 Grundlagen der Kommunikation und Kommunikationsmodelle (Carl Rogers, Friedemann Schulz von Thun, Paul Watzlawick)"
+   ]
+  },
+  {
+   "kb": "I.5",
+   "themen": [
+    "CE 3 UE 2 Grundlagen der Kommunikation und Kommunikationsmodelle (Carl Rogers, Friedemann Schulz von Thun, Paul Watzlawick)"
+   ]
+  },
+  {
+   "kb": "I.6",
+   "themen": [
+    "CE 5 UE 1 Ethische Prinzipien (Medizinethik)"
+   ]
+  },
+  {
+   "kb": "IV",
+   "themen": [
+    "CE 5 UE 7 Betäubungsmittel"
+   ]
+  }
+ ],
+ "fall": [
+  "Sie sind Auszubildende im zweiten Ausbildungsjahr und haben Frühdienst im Seniorenzentrum St. Anna, Wohnbereich 2. In der Übergabe berichtet die Nachtwache über Frau Margarete Lindner, 86 Jahre. Frau Lindner lebt seit drei Jahren in der Einrichtung. Sie ist katholisch, hat bis ins hohe Alter im Kirchenchor gesungen und liebt Marienlieder. Seit Monaten ist eine fortgeschrittene Krebserkrankung bekannt. Ihr Hausarzt, Dr. Brandt, hat ein Opioid (Morphin) verordnet, das als Betäubungsmittel (BtM) geführt wird — als feste Gabe und zusätzlich als Bedarfsmedikation bei Schmerzen.",
+  "Seit fünf Tagen verlässt Frau Lindner das Bett nicht mehr. Sie ist sehr schläfrig, öffnet auf Ansprache kurz die Augen und schließt sie wieder. Sie isst kaum noch und nimmt nur noch wenige Schlucke Tee zu sich. Sie atmet mit offenem Mund, die Lippen sind rissig, die Zunge ist trocken und belegt. Ihre Oberkieferprothese sitzt locker. Der letzte Stuhlgang war vor fünf Tagen; beim Positionieren verzieht sie das Gesicht, wenn der Bauch berührt wird.",
+  "Im Pflegebericht der Nacht steht: „Atmung seit 3 Uhr verändert: Die Atemzüge werden erst immer tiefer, dann wieder flacher, danach Atempause von ca. 15 Sekunden, dann beginnt es von vorn. AF 11/min.“",
+  "Die Tochter, Sabine Lindner (59), kommt jeden Tag. Sie hält die Hand ihrer Mutter, spielt leise Marienlieder vom Handy ab und cremt ihr die Hände mit der Lavendelcreme ein, die Frau Lindner früher immer benutzt hat. Dann wird Frau Lindner sichtbar ruhiger. Heute hält die Tochter Sie auf dem Flur an und sagt aufgebracht: „Meine Mutter verdurstet doch! Seit Tagen trinkt sie nichts, und keiner sagt mir, was hier los ist. Ich will, dass sie eine Infusion bekommt — und Sie sollen ihr jede Stunde etwas zu trinken geben. Ich kann nicht mehr.“",
+  "Ihr Bruder, Thomas Lindner (62), widerspricht am Telefon: „Mama hat immer gesagt: keine Schläuche, wenn es zu Ende geht. Ich glaube, es gibt eine Patientenverfügung, ich suche sie heraus.“ In der Bewohnerakte liegt keine Patientenverfügung vor. Dr. Brandt kommt um 12 Uhr zur Visite. Ihr Praxisanleiter, Pflegefachmann Herr Petersen, bittet Sie, um 10 Uhr die ärztlich angeordnete Bedarfsdosis des Opioids zu verabreichen, weil Frau Lindner beim Positionieren Schmerzen zeigt."
+ ],
+ "aufgaben": [
+  {
+   "nr": "1.1",
+   "operator": "Beschreiben",
+   "afb": "I",
+   "kb": "I.1",
+   "thema": "CE 5 UE 5 Anatomie und Physiologie Atmung",
+   "punkte": 4,
+   "frage": "Beschreiben Sie den Weg der Einatemluft bis zum Ort des Gasaustauschs sowie die Steuerung der Atmung (vier Aspekte).",
+   "erwartung": [
+    {
+     "text": "Weg der Atemluft: Nasenraum → Rachen (Pharynx) → Kehlkopf (Larynx) → Luftröhre (Trachea) → Bronchien → Bronchiolen → Alveolen (Lungenbläschen).",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Gasaustausch in den Alveolen an der Membran zwischen Alveole und Kapillaren: O₂ geht aus der Alveole ins Blut, CO₂ aus dem Blut in die Alveole und wird ausgeatmet.",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Atemzentrum in der Medulla oblongata (verlängertes Mark, Übergang Gehirn/Rückenmark) steuert Ein- und Ausatmung, hauptsächlich unbewusst.",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Spezialisierte Zellen an Arteria carotis, Aorta und nahe dem Rückenmark melden den CO₂-Gehalt des Blutes: je höher der CO₂-Anteil, desto schneller die Atmung.",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Die Atmung lässt sich bewusst vom Großhirn beeinflussen (z. B. Atem anhalten, bis die veränderte Atemgaszusammensetzung zum Weiteratmen zwingt).",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Einatmung aktiv: Zwerchfell kontrahiert sich (Kuppel senkt sich), äußere Zwischenrippenmuskeln heben den Brustkorb, Thoraxvolumen nimmt zu.",
+     "punkte": 1,
+     "quelle": "schulung-anatomie-organe/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 4. Zwei Punkte für den Weg/Gasaustausch, zwei für die Steuerung sind ideal; die Atemmechanik (letzte Zeile) wird als gleichwertige Alternative anerkannt. Lungenlappen (rechts drei, links zwei) ebenfalls als Alternative (schulung-anatomie-organe/zusammenfassung.html)."
+  },
+  {
+   "nr": "1.2",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "I.1",
+   "thema": "CE 2b UE 5 Atembeobachtung",
+   "punkte": 6,
+   "frage": "Nennen Sie sechs Kriterien der Atembeobachtung.",
+   "erwartung": [
+    {
+     "text": "Atemtyp (Bauch-, Brust-, Mischatmung)",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemfrequenz (Anzahl der Atemzüge pro Minute)",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemintensität / Atemtiefe",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemrhythmus (Abfolge der Atemzüge)",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemgeräusche",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemgeruch",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Husten und Sputum",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Hautfarbe, z. B. Zyanose",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Mimik, z. B. Schmerzen beim Atmen",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 6. Die sechs fett gedruckten Hauptkriterien des Foliensatzes (Folie 3) sind die erwartete Lösung; die drei weiteren Kriterien werden gleichwertig anerkannt."
+  },
+  {
+   "nr": "1.3",
+   "operator": "Erklären",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 2b UE 5 Atembeobachtung",
+   "punkte": 5,
+   "frage": "Erklären Sie das Atemmuster, das die Nachtwache bei Frau Lindner dokumentiert hat (Bezeichnung, Merkmale, Bedeutung in ihrer Situation).",
+   "erwartung": [
+    {
+     "text": "Bezeichnung: Cheyne-Stokes-Atmung.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Merkmal: periodisch wiederkehrendes An- und Abschwellen der Atemzüge — flache Atemzüge werden immer tiefer und flachen dann wieder ab (im Fall: „erst immer tiefer, dann wieder flacher“).",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Merkmal: dazwischen Atempausen, manchmal länger als 10 Sekunden; danach setzen wieder flache, dann tiefer werdende Atemzüge ein (im Fall: Pause ca. 15 Sekunden).",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Bedeutung: kann bei Sterbenden im präfinalen Stadium beobachtet werden — passt zu Frau Lindners Situation (fortgeschrittene Krebserkrankung, seit Tagen bettlägerig, kaum Nahrung und Flüssigkeit).",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Pathologisch außerdem bei schwerer Schädigung des Atemzentrums und bei Herzerkrankungen infolge der verlangsamten Blutzirkulation; der Schnappatmung, die vor allem kurz vor dem Tod auftritt, geht oft eine Cheyne-Stokes-Atmung voraus.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    }
+   ],
+   "hinweis": "Erklären verlangt den Bezug zum Fall: Die Merkmale müssen an den Angaben der Nachtwache gezeigt werden. Nur die Bezeichnung ohne Fallbezug: 1 P."
+  },
+  {
+   "nr": "1.4",
+   "operator": "Erläutern",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 2b UE 5 Atembeobachtung · CE 5 UE 7 Betäubungsmittel",
+   "punkte": 5,
+   "frage": "Erläutern Sie, warum bei Frau Lindner unter der Opioidtherapie eine gezielte Atembeobachtung erforderlich ist und wie Sie diese durchführen (fünf Aspekte).",
+   "erwartung": [
+    {
+     "text": "Opioide haben eine atemdepressive (die Atmung dämpfende) Wirkung; die Gabe solcher Medikamente ist laut Foliensatz eine Indikation für die gezielte Atembeobachtung (Folie 10 nennt Opioide bei bewusstlosen, beatmeten oder soeben extubierten Pflegeempfängern — Frau Lindner ist stark schläfrig: Übertragung auf den Fall).",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md"
+    },
+    {
+     "text": "Bradypnoe = Atemfrequenz beim Erwachsenen unter 12/min; pathologische Ursache u. a. Vergiftungen durch Opiate → die dokumentierte AF von 11/min liegt darunter und muss beachtet werden.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Atemfrequenz über eine ganze Minute zählen (Normwert Erwachsener 12–18/min).",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Unangekündigt beobachten, da der Mensch seine Atmung beeinflusst, sobald er sich ihrer bewusst wird (z. B. nach der Pulskontrolle das Handgelenk weiter halten).",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Hypoventilation zeigt sich meist als Bradypnoe oder flache Atmung → auch Atemtiefe und -rhythmus beobachten.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Dokumentation der AF als Verlaufskurve oder Zahl; Besonderheiten und Begleiterscheinungen im Pflegebericht.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 5. Die erste Zeile (atemdepressive Wirkung als Indikation) ist Mindestkriterium. Dass die Beobachtung an die Pflegefachkraft weitergegeben wird, wird anerkannt, ist aber nicht erforderlich. Der Mechanismus „Opioide dämpfen das Atemzentrum“ steht so nicht in den Unterlagen und wird nicht verlangt."
+  },
+  {
+   "nr": "2.1",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "I.1",
+   "thema": "CE 2b UE 2 Mund- und Zahnpflege",
+   "punkte": 4,
+   "frage": "Nennen Sie vier Bereiche, auf die ein gesunder Mundraum Einfluss hat.",
+   "erwartung": [
+    {
+     "text": "Ernährungszustand",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    },
+    {
+     "text": "Sprechen",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    },
+    {
+     "text": "Infektionsrisiko und Allgemeinzustand (z. B. Lungenentzündung, Diabetes)",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    },
+    {
+     "text": "Wohlbefinden, sozialer Status",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    }
+   ],
+   "hinweis": "Kernaussage des Foliensatzes: „Mund- und Zahnhygiene fördert die Lebensqualität!“ — als Zusatz willkommen, nicht bepunktet."
+  },
+  {
+   "nr": "2.2",
+   "operator": "Erarbeiten",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 2b UE 2 Mund- und Zahnpflege",
+   "punkte": 4,
+   "frage": "Erarbeiten Sie aus der Fallsituation vier Ursachen für die Mundtrockenheit (Xerostomie) von Frau Lindner.",
+   "erwartung": [
+    {
+     "text": "Mundatmung — sie atmet mit offenem Mund.",
+     "punkte": 1,
+     "quelle": "Wissen/100-munderkrankungen.md"
+    },
+    {
+     "text": "Nebenwirkung von Medikamenten: Opioide gehören zu den Medikamenten, die eine Xerostomie verursachen können.",
+     "punkte": 1,
+     "quelle": "Wissen/032-mundgesundheit-und-medikamente.md"
+    },
+    {
+     "text": "Flüssigkeitsmangel — sie nimmt nur noch wenige Schlucke Tee zu sich.",
+     "punkte": 1,
+     "quelle": "Wissen/100-munderkrankungen.md"
+    },
+    {
+     "text": "Nahrungskarenz — sie isst kaum noch.",
+     "punkte": 1,
+     "quelle": "Wissen/100-munderkrankungen.md"
+    },
+    {
+     "text": "Alter — mit zunehmendem Alter nimmt die Speichelproduktion ab.",
+     "punkte": 1,
+     "quelle": "Wissen/032-mundgesundheit-und-medikamente.md"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 4. Jede Ursache muss mit der passenden Angabe aus dem Fall belegt sein; eine Ursache ohne Fallbeleg: 0,5 P."
+  },
+  {
+   "nr": "2.3",
+   "operator": "Ableiten",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 2b UE 2 Mund- und Zahnpflege",
+   "punkte": 6,
+   "frage": "Leiten Sie aus der Fallsituation drei Maßnahmen der Mund- und Zahnpflege für Frau Lindner ab.",
+   "erwartung": [
+    {
+     "text": "Maßnahme: Oberkörper aufrecht bzw. erhöht positionieren, Kopf leicht nach vorne, Handtuch unterlegen —",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    },
+    {
+     "text": "— weil bei der Mundpflege Würgereiz- und Aspirationsgefahr besteht; Frau Lindner ist alt und sehr schläfrig (als besonders gefährdet nennt der Lehrbuchauszug u. a. desorientierte, alte Patienten).",
+     "punkte": 1,
+     "quelle": "Wissen/080-aspirationsprophylaxe.md"
+    },
+    {
+     "text": "Maßnahme: Mundpflege, die die Mundschleimhaut anfeuchtet; Zunge mitreinigen —",
+     "punkte": 1,
+     "quelle": "Wissen/080-aspirationsprophylaxe.md"
+    },
+    {
+     "text": "— weil Xerostomie Entzündungen und Infektionen der Mundschleimhaut (z. B. Candidiasis), Aphten/Ulzerationen und Mundgeruch begünstigt und auf der Zunge die meisten Bakterien sitzen (ihre Zunge ist trocken und belegt).",
+     "punkte": 1,
+     "quelle": "Wissen/032-mundgesundheit-und-medikamente.md"
+    },
+    {
+     "text": "Maßnahme: Oberkieferprothese herausnehmen, mindestens zweimal täglich reinigen (Seife oder Prothesen-Zahnpasta), dabei Fallschutz (Waschlappen oder Wasser im Becken) —",
+     "punkte": 1,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    },
+    {
+     "text": "— weil die Prothese ein Keimreservoir ist und fehlender Speichel zu Haftproblemen, Druckstellen und Prothesenstomatitis führt (ihre Prothese sitzt locker).",
+     "punkte": 1,
+     "quelle": "Wissen/032-mundgesundheit-und-medikamente.md"
+    },
+    {
+     "text": "Maßnahme: Mundschleimhaut und Belag bei jeder Mundpflege beobachten — weil ein grau-weißer Belag, der sich nicht abwischen lässt, auf Soor (Hefepilzinfektion) hinweist.",
+     "punkte": 2,
+     "quelle": "Wissen/100-munderkrankungen.md"
+    },
+    {
+     "text": "Maßnahme: Mundspülung nur ohne Alkohol, medizinische Lösungen nur auf Arztanordnung — weil Mundspülung das Putzen nicht ersetzt und medizinische Lösungen ärztlich angeordnet werden müssen.",
+     "punkte": 2,
+     "quelle": "Wissen/107-mund-und-zahnpflege.md"
+    }
+   ],
+   "hinweis": "Je Maßnahme 1 P + 1 P für die fallbezogene Begründung, max. 6 (drei Maßnahmen). Eine Maßnahme ohne Begründung: 1 P. Die Paare „Maßnahme — weil …“ gehören zusammen."
+  },
+  {
+   "nr": "2.4",
+   "operator": "Erläutern",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 7 UE 3 Basale Stimulation",
+   "punkte": 5,
+   "frage": "Erläutern Sie an der Fallsituation, wie die Tochter mit Elementen der basalen Stimulation in die Begleitung ihrer Mutter einbezogen werden kann.",
+   "erwartung": [
+    {
+     "text": "Basale Stimulation = Förderung und Stimulierung der Sinne → Förderung der Ressourcen, d. h. der Wahrnehmung, die Frau Lindner noch hat.",
+     "punkte": 1,
+     "quelle": "Wissen/020-srw-syndrom-der-reaktionslosen-wachheit-tafelbild.md"
+    },
+    {
+     "text": "Musik: Die eingesetzten Mittel aktivieren Wahrnehmung und Sinne über Gerüche, Musik und Berührungen — im Fall die Marienlieder, die die Tochter leise abspielt.",
+     "punkte": 1,
+     "quelle": "Wissen/020-srw-syndrom-der-reaktionslosen-wachheit-tafelbild.md"
+    },
+    {
+     "text": "Berührung: Hand halten, Hände eincremen — Förderung der Wahrnehmung durch Berührung.",
+     "punkte": 1,
+     "quelle": "Wissen/068-die-rasur.md"
+    },
+    {
+     "text": "Geruch: die vertraute Lavendelcreme — Förderung der Wahrnehmung durch Gerüche; CAVE Allergien beachten.",
+     "punkte": 1,
+     "quelle": "Wissen/068-die-rasur.md"
+    },
+    {
+     "text": "Angehörige von Anfang an einbeziehen — die Tochter kennt Vorlieben und Gewohnheiten; der Fall zeigt die Wirkung: Frau Lindner wird sichtbar ruhiger.",
+     "punkte": 1,
+     "quelle": "Wissen/020-srw-syndrom-der-reaktionslosen-wachheit-tafelbild.md"
+    }
+   ],
+   "hinweis": "Die Unterlagen behandeln basale Stimulation am Syndrom der reaktionslosen Wachheit und bei der Rasur; die Übertragung auf die Sterbephase ist die verlangte Transferleistung. Leise Musik und Vorlesen in der Sterbephase (schulung-interkulturelle-pflege/zusammenfassung.html) werden als Beleg anerkannt."
+  },
+  {
+   "nr": "3.1",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "I.1",
+   "thema": "CE 2b UE 4 Obstipation und Obstipationsprophylaxe",
+   "punkte": 5,
+   "frage": "Nennen Sie die Definition der Obstipation sowie je zwei funktionelle und zwei habituelle Ursachen.",
+   "erwartung": [
+    {
+     "text": "Definition: Obstipation ist ein Symptom; weniger als drei Ausscheidungen (Stuhlgänge) pro Woche.",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Funktionelle Ursachen (zwei davon): Stenosen, Tumore, hormonelle Störung (z. B. Hypothyreose), Nebenwirkungen von Medikamenten (z. B. BTM/Betäubungsmittel), Lähmungen des Darms.",
+     "punkte": 2,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Habituelle Ursachen (zwei davon): Stress, Bewegungsmangel, Adipositas, verminderte Nahrungsaufnahme, niedriger Flüssigkeitshaushalt, ungewohnte Umgebung.",
+     "punkte": 2,
+     "quelle": "Wissen/034-obstipation.md"
+    }
+   ],
+   "hinweis": "Je richtig zugeordnete Ursache 1 P. Falsche Zuordnung funktionell/habituell: 0 P für diese Ursache."
+  },
+  {
+   "nr": "3.2",
+   "operator": "Ableiten",
+   "afb": "II",
+   "kb": "I.1",
+   "thema": "CE 2b UE 4 Obstipation und Obstipationsprophylaxe",
+   "punkte": 5,
+   "frage": "Leiten Sie aus den Maßnahmen der Obstipationsprophylaxe drei ab, die für Frau Lindner in ihrer jetzigen Situation geeignet sind.",
+   "erwartung": [
+    {
+     "text": "Kolonmassage nach Vogler: angenehmer Druck entlang des Dickdarms, ca. 5 Minuten, am besten morgens — regt die Peristaltik an, ohne dass Frau Lindner selbst aktiv werden muss; nur solange sie es toleriert (Mimik beobachten, sie verzieht bei Bauchberührung das Gesicht).",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Intimsphäre wahren, Stuhlgang in geschütztem Raum ermöglichen, Besuch so lange hinausbitten, durch Haltung und Gespräch das Schamgefühl nehmen.",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Flüssigkeit in kleinen Mengen anbieten, ohne festgelegte Trinkmenge — weil in der Sterbephase festgelegte Trinkmengen neu definiert werden können und das Bedürfnis nach Ruhe oberste Priorität hat.",
+     "punkte": 1,
+     "quelle": "Wissen/063-pemu-erfassung-mangelernaehrung.md"
+    },
+    {
+     "text": "Positionswechsel im Rahmen der ohnehin nötigen Positionierung nutzen (regelmäßiger Wechsel der Körperhaltung, Ressourcen nutzen) statt Mobilisationsprogramm — weil Ruhe und Passivität Vorrang haben.",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Abgrenzung (Begründung, warum eine Standardmaßnahme nicht passt): Ballaststoffreiche Kost (35–40 g/Tag) setzt ausreichend Flüssigkeit voraus — Ballaststoffaufnahme ohne zureichenden Wasserkonsum ist selbst eine Ursache der Obstipation; Frau Lindner trinkt kaum.",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Abgrenzung: Klistier/Klysma hat Kontraindikationen und kann zu Kreislaufbelastung führen (Vitalzeichenkontrolle) — für eine sterbende Bewohnerin belastend; die Abwägung im Team und mit dem Arzt ist Folgerung, nicht Wortlaut der Unterlagen.",
+     "punkte": 1,
+     "quelle": "Wissen/034-obstipation.md"
+    },
+    {
+     "text": "Beobachtung: Bei „Durchfall“ eines opioidbehandelten, immobilen Menschen zuerst an eine Überlauf-Situation (Kotstauung, flüssiger Stuhl läuft vorbei) denken — nicht stopfend behandeln.",
+     "punkte": 1,
+     "quelle": "schulung-kontinenz/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 5: drei geeignete Maßnahmen mit Begründung (3 P) + 2 P für Begründungen, die die Sterbephase/Ruhebedürfnis oder eine begründete Abgrenzung einbeziehen. Bewegungsübungen wie „Fahrrad fahren“ im Bett oder Bettfahrrad ohne Abwägung: 0 P."
+  },
+  {
+   "nr": "3.3",
+   "operator": "Erläutern",
+   "afb": "II",
+   "kb": "IV",
+   "thema": "CE 5 UE 7 Betäubungsmittel",
+   "punkte": 6,
+   "frage": "Erläutern Sie anhand der drei Verantwortungsebenen der Delegation, was für Herrn Petersen und für Sie gilt, wenn er Ihnen die Gabe der ärztlich angeordneten Bedarfsdosis des Opioids überträgt — einschließlich der Beobachtung nach der Gabe (sechs Aspekte).",
+   "erwartung": [
+    {
+     "text": "Anordnungsverantwortung trägt, wer delegiert (hier Herr Petersen; die ärztliche Anordnung kommt von Dr. Brandt).",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Inhalt der Anordnungsverantwortung: Auswahl (Ist die Person geeignet?), Anleitung (Wurde sie eingewiesen?), Überwachung (Wird kontrolliert?).",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Übernahmeverantwortung trage ich als Person, die die Aufgabe annimmt: Ich prüfe „Kann ich das? Darf ich das? Bin ich eingewiesen?“",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Wenn nein, muss ich die Aufgabe ablehnen (Beispiel Anna im Einstiegsfall: ohne Einweisung hätte sie ablehnen müssen).",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Durchführungsverantwortung: Wer die Aufgabe ausführt, ist für die sorgfältige, richtige Durchführung verantwortlich.",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Nach der Gabe beobachten: Atmung (atemdepressive Wirkung, Bradypnoe) und Ausscheidung (BTM/Opiate verursachen als Nebenwirkung Obstipation; Opioide wirken auch auf die Blase, Harnverhalt).",
+     "punkte": 1,
+     "quelle": "Wissen/082-atembeobachtung.md · Wissen/034-obstipation.md · Wissen/090-risikofaktoren-inkontinenz.md"
+    }
+   ],
+   "hinweis": "Die Unterlagen enthalten keine Regeln des Betäubungsmittelrechts (BtM-Dokumentation, Aufbewahrung, Entsorgung, Doppelkontrolle). Diese werden hier nicht bepunktet. Wer die Doppelkontrolle bei Hochrisiko-Medikamenten nennt (Übungsfall Jana, schulung-recht/zusammenfassung.html), erhält keinen Abzug."
+  },
+  {
+   "nr": "4.1",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "II.1",
+   "thema": "CE 3 UE 2 Grundlagen der Kommunikation — Schulz von Thun",
+   "punkte": 4,
+   "frage": "Nennen Sie die vier Seiten einer Nachricht nach Friedemann Schulz von Thun.",
+   "erwartung": [
+    {
+     "text": "Sachinhalt",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Selbstkundgabe (Selbstoffenbarung)",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Beziehungshinweis (Beziehungsebene)",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Appell",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ]
+  },
+  {
+   "nr": "4.2",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "II.1",
+   "thema": "CE 3 UE 2 Grundlagen der Kommunikation — Watzlawick",
+   "punkte": 3,
+   "frage": "Nennen Sie drei der fünf Axiome nach Paul Watzlawick.",
+   "erwartung": [
+    {
+     "text": "Man kann nicht nicht kommunizieren.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Jede Kommunikation hat einen Inhalts- und einen Beziehungsaspekt.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Kommunikation als kreisförmiger Prozess.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Analoge und digitale Kommunikation.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Symmetrische und komplementäre Beziehungen.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Je 1 P, max. 3. In den Unterlagen stehen nur die Namen der Axiome; der Inhalt (Pflege Heute 39.2.1) liegt nicht vor und wird deshalb nicht abgefragt."
+  },
+  {
+   "nr": "4.3",
+   "operator": "Erläutern",
+   "afb": "II",
+   "kb": "II.1",
+   "thema": "CE 3 UE 2 Grundlagen der Kommunikation — Schulz von Thun",
+   "punkte": 4,
+   "frage": "Erläutern Sie die Äußerung der Tochter auf dem Flur mithilfe der vier Seiten einer Nachricht.",
+   "erwartung": [
+    {
+     "text": "Sachinhalt: Daten und Fakten — „Seit Tagen trinkt sie nichts“; sie wünscht eine Infusion.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Selbstkundgabe: Was sie von sich zu erkennen gibt — Verzweiflung, Überforderung, Angst um die Mutter („Ich kann nicht mehr“; vgl. Folienbeispiel „Ich habe Schmerzen“ → „Ich kann nicht mehr“).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Beziehungshinweis: Was sie von der Pflege hält, wie sie zu ihr steht — sie fühlt sich nicht informiert, Vorwurf („keiner sagt mir, was hier los ist“).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Appell: Was sie erreichen möchte — „Tun Sie etwas! Informieren Sie mich!“ (offen: Infusion, stündlich zu trinken geben).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Erläutern verlangt den Beleg am Zitat. Fachlich richtige, anders formulierte Deutungen je Seite werden anerkannt; maßgeblich ist die richtige Zuordnung zur Seite."
+  },
+  {
+   "nr": "4.4",
+   "operator": "Entwickeln",
+   "afb": "III",
+   "kb": "I.5",
+   "thema": "CE 3 UE 2 Grundlagen der Kommunikation — Carl Rogers",
+   "punkte": 6,
+   "frage": "Entwickeln Sie ein begründetes Gesprächsangebot an die Tochter, das die drei Grundhaltungen nach Carl Rogers und Techniken des aktiven Zuhörens umsetzt.",
+   "erwartung": [
+    {
+     "text": "Kongruenz (Echtheit): Ich-Botschaft, das Gesagte stimmt mit dem Empfinden überein — nicht alles sagen, aber nichts sagen, was nicht stimmt; keine „professionelle Maske“ (z. B. „Ich merke, wie sehr Sie das belastet, und ich möchte mir Zeit für Sie nehmen.“).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Akzeptanz: nicht an Bedingungen geknüpfte Wertschätzung, nicht werten; Abgrenzung von Person und Verhalten — ihren Vorwurf nicht zurückweisen, Verständnis äußern, ohne der Forderung automatisch zuzustimmen.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Empathie: einfühlendes Verstehen — die hinter der Aussage stehende gefühlte Bedeutung aussprechen (z. B. „Sie haben Angst, dass Ihre Mutter leidet.“).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Aktives Zuhören, Techniken: Türöffner („Möchten Sie darüber reden?“), Paraphrasieren (Kernaussage mit eigenen Worten wiedergeben), Spiegeln/Verbalisieren von Gefühlen, Unklarheiten klären.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Rahmen: bewusst zuhören, Nebentätigkeiten ruhen lassen, zugewandte, offene Körpersprache, Blickkontakt, eigene Meinung, Urteile und Ratschläge zurückhalten.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Begründung: Rogers fragt nach den Bedingungen, unter denen ein Mensch von sich aus über sein Erleben spricht; „Verstehen geht vor Handeln“ — erst wenn verstanden ist, was die Tochter braucht, kann sie in die Pflege einbezogen werden (z. B. Angebot eines gemeinsamen Gesprächs mit Dr. Brandt).",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Entwickeln (AFB III): Es wird ein zusammenhängendes, fallbezogenes Gesprächsangebot erwartet, keine Begriffsliste. Grundhaltungen nur genannt ohne Umsetzung im Fall: je 0,5 P. Das konkrete Angebot eines Arztgesprächs ist Transfer und wird als Teil der Begründung anerkannt."
+  },
+  {
+   "nr": "5.1",
+   "operator": "Nennen",
+   "afb": "I",
+   "kb": "I.6",
+   "thema": "CE 5 UE 1 Ethische Prinzipien (Medizinethik)",
+   "punkte": 4,
+   "frage": "Nennen Sie die vier ethischen Prinzipien der Medizinethik.",
+   "erwartung": [
+    {
+     "text": "Autonomie",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Fürsorge",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Gerechtigkeit",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Nicht-Schaden",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Die vier Prinzipien stehen in der Musterlösung der Dozentin zum Fall Herr Möller (Phase 4). Definitionen der Prinzipien liegen in den Unterlagen nicht vor und werden nicht verlangt."
+  },
+  {
+   "nr": "5.2",
+   "operator": "Beurteilen",
+   "afb": "III",
+   "kb": "I.6",
+   "thema": "CE 5 UE 1 Ethische Prinzipien (Medizinethik)",
+   "punkte": 12,
+   "frage": "Beurteilen Sie die Forderung der Tochter (Infusion, stündliches Trinken) mithilfe des dialogischen Modells nach Heffels (sieben Phasen) bis hin zu einer begründeten Handlungsempfehlung.",
+   "erwartung": [
+    {
+     "text": "Phase 1 Situationsdeutung — Was liegt vor? Sterbende Bewohnerin trinkt kaum; Forderung nach Infusion. Wer ist beteiligt? Frau Lindner, Tochter, Sohn, Dr. Brandt, Pflegeteam/Auszubildende.",
+     "punkte": 1,
+     "quelle": "schulung-verantwortung/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 1 — Wer hat welche Ansicht? Tochter: Angst, die Mutter „verdurstet“ (Fürsorge); Sohn: früher geäußerter Wille „keine Schläuche“; Frau Lindner selbst kann sich nicht mehr äußern; Pflege: will Wohlbefinden und Würde wahren.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 2 Problembestimmung: Es kollidieren Autonomie/Selbstbestimmung (früher geäußerter Wille) und Nicht-Schaden mit der Fürsorge der Tochter — zwei Werte, die beide gut gemeint sind.",
+     "punkte": 2,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 3 Zielbestimmung: Worum geht es im Kern? Wohlbefinden von Frau Lindner, vertrauensvolle Beziehung zwischen Familie, Arzt und Pflege.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 4 Vorgaben: ethische Prinzipien; Pflege-Charta (Recht auf Selbstbestimmung); Leitfaden PEMU: Autonomie und Selbstbestimmung berücksichtigen, Bedürfnis nach Ruhe und Passivität hat oberste Priorität, in der Sterbephase können festgelegte Trinkmengen neu definiert und auf Gewichtserfassung verzichtet werden.",
+     "punkte": 1,
+     "quelle": "Wissen/063-pemu-erfassung-mangelernaehrung.md · Wissen/023-prinzipien-der-koerperpflege.md"
+    },
+    {
+     "text": "Phase 4 Recht: Ein Heileingriff ist immer eine Körperverletzung und erst durch Einwilligung gerechtfertigt; eine mutmaßliche Einwilligung ist nicht anzuwenden, wenn ein rechtswirksam entgegenstehender Wille (z. B. Patientenverfügung) bekannt ist → Patientenverfügung klären.",
+     "punkte": 1,
+     "quelle": "schulung-recht/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 5 Handlungsmöglichkeiten — auch die schlechten sammeln: Infusion ohne Diskussion; stündlich Flüssigkeit einflößen; nichts tun; gemeinsames Gespräch mit Arzt, Tochter und Sohn; Patientenverfügung suchen; Gespräch im Team; Mundpflege zur Befeuchtung statt Trinkmenge.",
+     "punkte": 2,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Phase 6 Entscheidungsfindung (höchste Wirkung, geringste Nebenwirkungen): gemeinsames Gespräch mit Dr. Brandt, Tochter und Sohn bei der Visite; Willen von Frau Lindner klären (Patientenverfügung); Trinkmenge nach PEMU-Leitfaden neu festlegen; Flüssigkeit nur anbieten, nicht einflößen; regelmäßige Mundpflege; Dokumentation und Rücksprache mit dem Arzt.",
+     "punkte": 2,
+     "quelle": "schulung-kommunikation/zusammenfassung.html · Wissen/063-pemu-erfassung-mangelernaehrung.md"
+    },
+    {
+     "text": "Phase 7 Evaluieren (als Fragen): Wirkt Frau Lindner ruhig und entspannt (Mimik, Atmung)? Fühlt sich die Tochter einbezogen und informiert? Wie ist das Vertrauensverhältnis nach dem Gespräch?",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Beurteilen: erst Einschätzung, dann Begründung entlang der Phasen, dann Empfehlung. Die Empfehlung darf weder „Infusion“ noch „nichts tun“ ohne Abwägung sein; gesucht ist der „dritte Weg“ wie in der Musterlösung Herr Möller. Fehlt Phase 5 mit Alternativen, max. 9 P. Medizinische Aussagen über Nutzen oder Schaden einer Infusion in der Sterbephase stehen nicht in den Unterlagen und werden nicht verlangt."
+  },
+  {
+   "nr": "6.1",
+   "operator": "Entwickeln",
+   "afb": "III",
+   "kb": "I.1",
+   "thema": "CE 8 UE 3 Begleitung im Sterbeprozess (Blockwoche)",
+   "punkte": 12,
+   "frage": "Entwickeln Sie einen begründeten Begleitplan für die letzten Lebenstage von Frau Lindner, der die Bewohnerin, ihre Angehörigen und ihre religiöse Prägung berücksichtigt.",
+   "erwartung": [
+    {
+     "text": "Sterbephase (christlich): ruhige Körperpflege, Schweigen, leise Musik, Vorlesen — passend zu ihrer Biografie (Kirchenchor, Marienlieder).",
+     "punkte": 2,
+     "quelle": "schulung-interkulturelle-pflege/zusammenfassung.html"
+    },
+    {
+     "text": "Priester frühzeitig informieren (nach Wunsch der Familie): Krankensalbung für Katholiken bei schwerer Krankheit — zwecks Sündenvergebung und ewigem Leben; Salbung mit geweihtem Öl an den fünf Sinnen.",
+     "punkte": 1,
+     "quelle": "schulung-interkulturelle-pflege/zusammenfassung.html"
+    },
+    {
+     "text": "Gegebenenfalls religiöse Rituale und Raumgestaltung nach Wunsch: Fenster öffnen („Seelenfenster“), Tisch mit weißer Tischdecke, Kreuz, zwei Kerzen, kleine Schale mit Weihwasser.",
+     "punkte": 1,
+     "quelle": "schulung-interkulturelle-pflege/zusammenfassung.html"
+    },
+    {
+     "text": "Ernährung und Flüssigkeit: Ruhe und Passivität haben oberste Priorität; auf Gewichtserfassung verzichten, festgelegte Trinkmengen neu definieren.",
+     "punkte": 2,
+     "quelle": "Wissen/063-pemu-erfassung-mangelernaehrung.md"
+    },
+    {
+     "text": "Phase 6 nach Schaeffer und Moers (Abwärtsentwicklung und Sterben): Die Erkrankten sind fast vollständig auf die Unterstützung anderer verwiesen; besonders schwer ist es zu ertragen, dass andere stellvertretend handeln → Gewohnheiten und Wünsche (Lavendelcreme, Musik) weiter berücksichtigen.",
+     "punkte": 2,
+     "quelle": "schulung-rehabilitation/zusammenfassung.html"
+    },
+    {
+     "text": "Angehörige: Ist die Hilfesituation unsicher, weil Angehörige selbst überfordert sind, wird eine protektive Versorgung gewünscht, die allen Beteiligten Sicherheit bietet → Tochter und Sohn informieren, einbeziehen (basale Stimulation), Gesprächsangebote.",
+     "punkte": 2,
+     "quelle": "schulung-rehabilitation/zusammenfassung.html · Wissen/020-srw-syndrom-der-reaktionslosen-wachheit-tafelbild.md"
+    },
+    {
+     "text": "Beobachtung und Dokumentation der Atmung: Cheyne-Stokes-Atmung kann bei Sterbenden im präfinalen Stadium auftreten; Schnappatmung tritt vor allem kurz vor dem Tod auf.",
+     "punkte": 1,
+     "quelle": "Wissen/083-atembeobachtung-teil-2.md"
+    },
+    {
+     "text": "Gefühlsarbeit: Trostarbeit und Fassungsarbeit — Fassungsarbeit findet nicht ausschließlich verbal statt (Dasein, Hand halten), wie im Fall Frau Los.",
+     "punkte": 1,
+     "quelle": "schulung-kommunikation/zusammenfassung.html"
+    },
+    {
+     "text": "Nach dem Tod (Alternative): Kondolenzbuch, Foto mit schwarzem Rahmen und Kerzen, Nachttisch mit Kerze und Kreuz, Abschiedsfeier.",
+     "punkte": 1,
+     "quelle": "schulung-interkulturelle-pflege/zusammenfassung.html"
+    }
+   ],
+   "hinweis": "Je Element 1 P bzw. 2 P bei begründeter Ausführung, max. 12. AFB III: Jedes Element braucht eine Begründung (weil …); ohne Begründung höchstens die Hälfte. Das Element „nach dem Tod“ ist eine gleichwertige Alternative, falls ein anderes fehlt. Religiöse Elemente nur als Angebot nach Wunsch von Bewohnerin/Familie — als Pflicht formuliert: Abzug 1 P."
+  }
+ ],
+ "gesamtpunkte": 100,
+ "quellen": [
+  "Wissen/020-srw-syndrom-der-reaktionslosen-wachheit-tafelbild.md",
+  "Wissen/023-prinzipien-der-koerperpflege.md",
+  "Wissen/032-mundgesundheit-und-medikamente.md",
+  "Wissen/034-obstipation.md",
+  "Wissen/063-pemu-erfassung-mangelernaehrung.md",
+  "Wissen/068-die-rasur.md",
+  "Wissen/080-aspirationsprophylaxe.md",
+  "Wissen/082-atembeobachtung.md",
+  "Wissen/083-atembeobachtung-teil-2.md",
+  "Wissen/090-risikofaktoren-inkontinenz.md",
+  "Wissen/100-munderkrankungen.md",
+  "Wissen/107-mund-und-zahnpflege.md",
+  "examen-abschluss/examen.html",
+  "ressources/klausur-konventionen.md",
+  "schulung-anatomie-organe/zusammenfassung.html",
+  "schulung-interkulturelle-pflege/zusammenfassung.html",
+  "schulung-kommunikation/zusammenfassung.html",
+  "schulung-kontinenz/zusammenfassung.html",
+  "schulung-recht/zusammenfassung.html",
+  "schulung-rehabilitation/zusammenfassung.html",
+  "schulung-verantwortung/zusammenfassung.html"
+ ],
+ "luecken": [
+  "CE 8 UE 3 Begleitung im Sterbeprozess (Blockwoche) : aucun support de cours propre dans le dépôt. Seuls des fragments existent (rituels chrétiens de la phase terminale dans « Interkulturelle Pflege », Cheyne-Stokes/Schnappatmung, phrase PEMU sur la phase terminale, phase 6 de Schaeffer/Moers). Pas de phases du deuil/de l'agonie, pas de soins palliatifs des symptômes (douleur, angoisse, râles, soins de bouche spécifiques en fin de vie).",
+  "CE 7 UE 3 Basale Stimulation : seulement le Tafelbild SRW (Gerüche → Musik → Berührungen, Angehörige einbeziehen) et la diapo sur le rasage. Le concept complet (Initialberührung, formes somatique/vestibulaire/vibratoire, auteurs) manque ; l'« Initialberührung » du Lernmaterial est marquée [Ergänzung] et n'a pas été utilisée.",
+  "CE 5 UE 7 Betäubungsmittel : quasiment rien. Aucune règle du droit des stupéfiants (BtMG/BtMVV, BtM-Buch, stockage, double contrôle, destruction). Présent seulement : BTM/opiacés → constipation, opioïdes → dépression respiratoire, xérostomie, rétention urinaire. L'Aufgabe 3.3 teste donc la délégation (cours de droit) + l'observation, pas le droit des stupéfiants.",
+  "CE 5 UE 1 Ethische Prinzipien : les quatre principes ne sont que nommés (Musterlösung Herr Möller). Le cours de Mme Nix (CE 1 UE 6 : ICN-Kodex, Pflege-Charta, définitions des principes) n'est pas dans le dépôt → seulement « Nennen » + application avec le modèle de Heffels.",
+  "CE 5 UE 5 Anatomie und Physiologie Atmung : le cours CE 5 UE 5 lui-même n'est pas dans le dépôt. Contenu pris de « Atembeobachtung Teil 1 » (CE 2 UE 5) et de la page Organes (affiche Lunge CE 05 UE 0, muscles inspiratoires).",
+  "CE 3 UE 2 Watzlawick : les cinq axiomes ne sont que nommés (contenu dans Pflege Heute 39.2.1, absent) → seulement « Nennen ». Les « gesprächshemmende Faktoren » manquent aussi.",
+  "Mund- und Zahnpflege bei Sterbenden : aucune consigne spécifique (soins des lèvres, humidification en fin de vie). Seulement principes généraux, Xerostomie et Aspirationsprophylaxe (« Mundhygiene, um Mundschleimhaut anzufeuchten »).",
+  "Obstipation unter Opioiden : le lien BTM → constipation existe, mais aucune prophylaxie laxative médicamenteuse spécifique aux opioïdes n'est dans ses documents."
+ ],
+ "fiktiv": [
+  "Tous les noms : Frau Margarete Lindner, Sabine Lindner, Thomas Lindner, Dr. Brandt, Herr Petersen, « Seniorenzentrum St. Anna ».",
+  "Âges (86, 59, 62 ans), durée de séjour (3 ans), chorale, Marienlieder, crème à la lavande.",
+  "Diagnostic « fortgeschrittene Krebserkrankung » et prescription de morphine (fixe + à la demande) — détails du cas, sans dose.",
+  "Valeurs et observations : 5 jours alitée, dernier Stuhlgang il y a 5 jours, pause respiratoire 15 s, AF 11/min, prothèse supérieure qui bouge.",
+  "Les citations de la fille et du fils, l'existence possible d'une Patientenverfügung, l'heure de visite 12 h et l'heure de la Bedarfsdosis 10 h."
+ ]
+}
