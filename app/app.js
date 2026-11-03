@@ -8,10 +8,16 @@ const EX = Object.fromEntries((DATA.pruefungen||[]).map(e => [e.id, e]));
 const OR = Object.fromEntries((DATA.muendlich||[]).map(e => [e.id, e]));
 const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
 const S = { mode:"local", docs:{}, uid:null, name:"", owner:false, ki:false };
-function localAll(){ return LS.get("examen-versuche-v1") || {}; }
-function localPut(doc){ const all = localAll(); all[doc.key] = doc; LS.set("examen-versuche-v1", all); }
+/* auf der öffentlichen Seite gehört alles Gespeicherte zur Person (zu ihrem Namen) */
+const lsKey = base => MODE === "public" && S.uid ? base + "-" + S.uid : base;
+function localAll(){ return LS.get(lsKey("examen-versuche-v1")) || {}; }
+function localPut(doc){ const all = localAll(); all[doc.key] = doc; LS.set(lsKey("examen-versuche-v1"), all); }
+/* Name → feste Kennung: wer denselben Namen wieder eingibt, findet seine Arbeit wieder (auf jedem Gerät) */
+const nameNorm = n => String(n||"").normalize("NFKC").trim().toLowerCase().replace(/\s+/g, " ");
+async function uidAusName(n){ const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("examen-pflege:" + nameNorm(n))); return "u" + Array.from(new Uint8Array(h), b => b.toString(16).padStart(2,"0")).join("").slice(0, 24); }
 function versuche(id){ return Object.values(S.docs).filter(d => d.pruefung === id).sort((a,b) => a.versuch - b.versuch); }
 function letzter(id){ const v = versuche(id); return v[v.length-1] || null; }
 let toastT;
@@ -38,6 +44,7 @@ const ArtifactB = {
           for(const k in loc){ if(!fromDb[k] || (loc[k].geaendert||0) > (fromDb[k].geaendert||0)){ fromDb[k] = loc[k]; this.col().doc(k).set(loc[k]).catch(()=>{}); } }
           S.docs = fromDb; if(!editing()) render();
         }, e => { clearTimeout(timer); S.mode = "local"; flash("Speicher nicht erreichbar (" + e.code + ") — Antworten bleiben auf diesem Gerät."); render(); });
+        this.db.collection("abgaben/" + S.uid + "/muendlich").onSnapshot(snap => { const o = {}; snap.docs.forEach(d => o[d.id] = { id:d.id, ...d.data() }); S.oral = o; }, () => {});
       }
     }catch(e){ console.warn(e); }
   },
@@ -61,7 +68,7 @@ const ArtifactB = {
   async oralEval(o, st){
     if(!this.sample) throw { code:"no_ai" };
     const r = await this.sample.json(oralEvalPrompt(o, st.chat, st.planung), { modelTier:"complex", cache:false });
-    if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + Date.now()).set({ fall:o.id, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
+    if(S.mode === "db"){ try{ await this.db.doc("abgaben/" + S.uid + "/muendlich/" + o.id + "-" + (st.sid || Date.now())).set({ fall:o.id, start:st.vorbStart||st.pStart||null, chat:st.chat, notizen:st.notizen, planung:st.planung||[], bewertung:r, am:Date.now() }); }catch(e){} }
     return r;
   },
   async adminList(){
@@ -79,12 +86,13 @@ const ApiB = {
   async call(path, opts){ const r = await fetch(path, opts); if(!r.ok){ let m = ""; try{ m = (await r.json()).error; }catch{} throw { code: m === "ki_aus" ? "ki_aus" : r.status === 429 ? "rate_limited" : "http_" + r.status, message: m }; } return r.status === 202 ? {} : r.json(); },
   async post(path, body){ return this.call(path, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify(body) }); },
   async init(){
-    let id = LS.get("examen-uid");
-    if(!id){ id = "u" + Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(36).padStart(2,"0")).join("").slice(0,20); LS.set("examen-uid", id); }
-    S.uid = id; S.name = LS.get("examen-name") || ""; S.ki = true; S.owner = !!LS.get("examen-admin");
-    await this.reload();
+    S.name = LS.get("examen-name") || ""; S.ki = true; S.owner = !!LS.get("examen-admin");
+    S.uid = S.name ? await uidAusName(S.name) : null;
+    S.docs = localAll();
+    if(S.uid) await this.reload();
   },
   async reload(){
+    if(!S.uid) return;
     try{
       const r = await this.call("/api/versuche?uid=" + encodeURIComponent(S.uid));
       const fromApi = {}; (r.docs||[]).forEach(d => fromApi[d.key] = d);
@@ -105,13 +113,13 @@ const ApiB = {
   },
   async pruefer(o, st, onText){ const r = await this.post("/api/pruefer", { uid:S.uid, fall:o.id, notizen:st.notizen, planung:st.planung||[], chat:st.chat.slice(-30) }); onText(r.text); return r.text; },
   async oralEval(o, st){
-    const sid = st.sid || (st.sid = String(Date.now())); LS.set("oral-" + o.id, st);
+    const sid = st.sid || (st.sid = String(Date.now())); LS.set(lsKey("oral-" + o.id), st);
     await this.reload();
     const vorh = S.oral && S.oral[o.id + "-" + sid];
     if(vorh && vorh.bewertung) return vorh.bewertung;
     if(vorh && vorh.wartet) throw { code:"wartet_oral" };
     const t = Date.now();
-    await this.post("/api/muendlich", { uid:S.uid, name:S.name, fall:o.id, sid, t, notizen:st.notizen, planung:st.planung||[], chat:st.chat.slice(-60) });
+    await this.post("/api/muendlich", { uid:S.uid, name:S.name, fall:o.id, sid, t, start: st.vorbStart || st.pStart || null, notizen:st.notizen, planung:st.planung||[], chat:st.chat.slice(-60) });
     const k = o.id + "-" + sid;
     const x = await this.poll(() => { const d = S.oral && S.oral[k]; return d && (d.bewertung || d.wartet || (d.fehler && d.fehlerFuer === t)) ? d : null; }, 6*60000);
     if(x.bewertung) return x.bewertung;
@@ -132,7 +140,7 @@ function kiFehler(e){
 
 async function boot(){
   S.docs = localAll();
-  render();
+  if(MODE !== "public") render();
   await B.init();
   $("#tab-abgaben").hidden = !S.owner;
   render();
@@ -146,12 +154,14 @@ function render(){
   clearInterval(tick);
   const r = route();
   for(const a of document.querySelectorAll("#tabs a")) a.removeAttribute("aria-current");
-  const tab = r === "muendlich" || OR[r] ? "muendlich" : ["ergebnisse","abgaben","tipps"].includes(r) ? r : "start";
+  const tab = r === "muendlich" || OR[r] ? "muendlich" : ["ergebnisse","abgaben","tipps"].includes(r) ? r : (r.startsWith("v-") || r.startsWith("h-")) ? "ergebnisse" : "start";
   $("#tab-" + tab)?.setAttribute("aria-current","page");
   const app = $("#app");
   if(r === "abgaben") return renderAdmin(app);
   if(MODE === "public" && !S.name) return renderName(app);
   if(EX[r]) return renderExam(app, EX[r]);
+  if(r.startsWith("v-") && S.docs[r.slice(2)] && EX[S.docs[r.slice(2)].pruefung]){ const d = S.docs[r.slice(2)]; return renderSubmitted(app, EX[d.pruefung], d); }
+  if(r.startsWith("h-")){ const d = oralVerlauf().find(x => x.id === r.slice(2)); if(d) return renderOralVerlauf(app, d); }
   if(OR[r]) return renderOral(app, OR[r]);
   if(r === "muendlich") return renderOralList(app);
   if(r === "ergebnisse") return renderResults(app);
@@ -162,16 +172,19 @@ function render(){
 /* ---------- Name (öffentliche Seite) ---------- */
 function renderName(app){
   app.innerHTML = `<section class="intro"><span class="lbl">Examen Pflege · Übungsprüfung</span><h1>Willkommen</h1>
-    <p class="muted" style="max-width:68ch">Hier übst du das schriftliche und das mündliche Examen. Du brauchst kein Konto. Gib deinen Namen ein, damit deine Arbeiten dir zugeordnet werden können.</p></section>
+    <p class="muted" style="max-width:68ch">Hier übst du das schriftliche und das mündliche Examen. Du brauchst kein Konto. Gib deinen Namen ein. <b>Wenn du später wieder denselben Namen eingibst — auf diesem oder einem anderen Gerät —, geht deine Arbeit weiter</b> und du siehst alles, was du schon gemacht hast.</p></section>
     <form class="sheet" id="nf" style="max-width:520px">
-      <label class="lbl" for="nm">Dein Name</label><input id="nm" autocomplete="name" required style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+      <label class="lbl" for="nm">Dein Vor- und Nachname</label><input id="nm" autocomplete="name" required style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)">
+      <p class="muted" style="font-size:.85rem">Schreib deinen Namen jedes Mal gleich (Groß- und Kleinschreibung ist egal). Wer deinen Namen kennt, kann deine Arbeit sehen — benutze deshalb deinen vollen Namen.</p>
       <button class="btn pri big">Weiter</button>
-      <details><summary class="muted" style="cursor:pointer">Ich habe schon auf einem anderen Gerät geübt</summary><div class="stack" style="margin-top:8px"><label class="lbl" for="code">Dein Code von dem anderen Gerät</label><input id="code" style="font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)"></div></details>
     </form>`;
-  $("#nf").onsubmit = async e => { e.preventDefault(); const n = $("#nm").value.trim(); if(!n) return; const c = $("#code").value.trim();
-    if(/^u[a-z0-9]{8,30}$/.test(c)){ LS.set("examen-uid", c); S.uid = c; await B.reload(); }
-    S.name = n; LS.set("examen-name", n); render(); };
+  $("#nf").onsubmit = async e => { e.preventDefault(); const n = $("#nm").value.trim().replace(/\s+/g, " "); if(n.length < 2) return;
+    const alt = localAll();                       // was vorher ohne Namen auf diesem Gerät lag
+    S.name = n; LS.set("examen-name", n); S.uid = await uidAusName(n);
+    const neu = localAll(); for(const k in alt) if(!neu[k]) localPut(alt[k]);
+    S.docs = localAll(); await B.reload(); render(); };
 }
+function abmelden(){ LS.set("examen-name", null); S.name = ""; S.uid = null; S.docs = {}; S.oral = {}; location.hash = "#start"; render(); }
 
 /* ---------- Start ---------- */
 function status(id){
@@ -182,13 +195,15 @@ function status(id){
   return ["Abgegeben","done"];
 }
 function renderStart(app){
+  setTimeout(() => { const b = $("#logout"); if(b) b.onclick = abmelden; }, 0);
   const mode = S.mode === "db" || S.mode === "api" ? "Deine Abgaben werden gespeichert und korrigiert." : "Speicher nicht verbunden: Antworten bleiben vorerst auf diesem Gerät.";
   app.innerHTML = `
   <section class="intro">
     <span class="lbl">Schriftliche Prüfung · § 14 PflAPrV</span>
     <h1>Drei Aufsichtsarbeiten an drei Tagen</h1>
     <p class="muted" style="max-width:68ch">Jeden Tag eine Klausur nach der Matrix deiner Schule, in zwei Varianten: erst A, dann B. Eine Arbeit ist verschlossen, bis du auf <b>Ich bin bereit</b> drückst. Dann läuft die Uhr. Wenn die Zeit um ist, schließt sich alles und die Arbeit kann korrigiert werden.</p>
-    <p class="note info">${esc(mode)}${MODE === "public" && S.name ? ` Angemeldet als <b>${esc(S.name)}</b> · dein Code für ein anderes Gerät: <code>${esc(S.uid)}</code>` : ""}</p>
+    <p class="note info">${esc(mode)}</p>
+    ${MODE === "public" && S.name ? `<p class="row" style="gap:8px 12px">Angemeldet als <b>${esc(S.name)}</b><a href="#ergebnisse">Alles, was du gemacht hast</a><button class="btn ghost" id="logout" type="button">Anderer Name</button></p>` : ""}
   </section>
   ${(DATA.pruefungen||[]).filter(e => e.probe).map(e => { const [st,cl] = status(e.id); return `<section class="oral" style="border-style:dashed"><div><span class="lbl">Zum Ausprobieren · ${e.dauerMin} Minuten · ${e.gesamtpunkte} Punkte</span><h2>${esc(e.titel)}</h2><p class="muted">Ein kurzer Probelauf mit drei Aufgaben. So siehst du, wie Sperre, Uhr, Abgabe und Korrektur funktionieren.</p></div><div class="row"><span class="pill ${cl}">${esc(st)}</span><a class="btn pri" style="text-decoration:none" href="#${e.id}">${cl==="go"?"Probelauf starten":"Ansehen"}</a></div></section>`; }).join("")}
   <div class="days">${DATA.matrix.klausuren.map(k => `
@@ -364,8 +379,50 @@ function renderOralList(app){
   <p class="muted" style="max-width:68ch">Du bereitest den Fall vor. Dann stellt dir die Prüferin Fragen, eine nach der anderen, und fragt nach. Am Ende bekommst du eine Rückmeldung zu Inhalt und Sprache. Schreib deine Antworten oder diktiere sie mit dem Mikrofon deiner Tastatur.</p></section>
   <div class="list">${list.map(o => `<div class="it"><div><b>${esc(o.titel)}</b><div class="muted" style="font-size:.88rem">${esc(o.person)} · ${esc(o.setting)} · KB ${o.kb.join(", ")}</div></div><a class="btn pri" style="text-decoration:none" href="#${o.id}">Öffnen</a></div>`).join("") || `<p class="muted">Noch kein Fall da.</p>`}</div>`;
 }
+/* ---------- Verlauf der mündlichen Prüfungen ---------- */
+const ORAL_H = "oral-historie-v1";
+function oralArchiv(o, st, status){
+  if(!st || !st.chat || !st.chat.length) return;
+  const sid = st.sid || (st.sid = String(st.pStart || Date.now()));
+  const all = LS.get(lsKey(ORAL_H)) || {};
+  const id = o.id + "-" + sid;
+  all[id] = { id, fall:o.id, start: st.vorbStart || st.pStart || Date.now(), ende: Date.now(), chat: st.chat, notizen: st.notizen || "", planung: st.planung || [], bewertung: st.bewertung || null, wartet: st.wartet || null, status: st.bewertung ? "bewertet" : status };
+  LS.set(lsKey(ORAL_H), all);
+}
+function oralVerlauf(){
+  const all = { ...(LS.get(lsKey(ORAL_H)) || {}) };
+  for(const [id, d] of Object.entries(S.oral || {})){
+    if(!d) continue;
+    const loc = all[id] || {};
+    all[id] = { ...loc, ...d, id, fall: d.fall || loc.fall, start: loc.start || d.start || d.am, bewertung: d.bewertung || loc.bewertung || null, status: d.bewertung ? "bewertet" : (loc.status || (d.wartet ? "wartet" : "")) };
+  }
+  return Object.values(all).filter(d => OR[d.fall]).sort((a,b) => (b.start||0) - (a.start||0));
+}
+function oralEvalHtml(o, r){
+  return `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}${r.planung ? `<div><b>Pflegeplanung:</b> ${esc(r.planung)}</div>` : ""}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
+    <div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(r.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(r.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>
+    ${(r.sprache||[]).length?`<div class="lang"><span class="lbl">Sprache</span><ul>${r.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>`:""}`;
+}
+function horizontHtml(o, open){ return `<details${open?" open":""}><summary class="lbl" style="cursor:pointer">Erwartungshorizont</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(e => `<li>${esc(e.text)}<div class="src">${esc(e.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details>`; }
+function planungHtml(planung){ const rows = (planung||[]).filter(r => r.p||r.z||r.m||r.b); return rows.length ? `<div class="tbl"><table><thead><tr><th>Pflegeproblem</th><th>Pflegeziele</th><th>Pflegemaßnahmen</th><th>Begründungen</th></tr></thead><tbody>${rows.map(r => `<tr><td style="white-space:pre-wrap">${esc(r.p)}</td><td style="white-space:pre-wrap">${esc(r.z)}</td><td style="white-space:pre-wrap">${esc(r.m)}</td><td style="white-space:pre-wrap">${esc(r.b)}</td></tr>`).join("")}</tbody></table></div>` : ""; }
+function oralStatus(d){ return d.bewertung ? ["Note " + d.bewertung.note, "done"] : d.status === "abgebrochen" ? ["abgebrochen", "wait"] : ["Bewertung folgt", "run"]; }
+function renderOralVerlauf(app, d){
+  const o = OR[d.fall];
+  const [st, cl] = oralStatus(d);
+  app.innerHTML = `<div style="height:16px"></div><article class="sheet">
+    <div class="row" style="justify-content:space-between"><div><span class="lbl">Verlauf · Mündliche Prüfung · ${fmtD(d.start)}</span><h1>${esc(o.titel)}</h1></div><span class="pill ${cl}">${esc(st)}</span></div>
+    <details><summary class="lbl" style="cursor:pointer">Fallsituation</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div></details>
+    ${d.notizen ? `<section class="stack"><span class="lbl">Deine Notizen</span><p style="white-space:pre-wrap">${esc(d.notizen)}</p></section>` : ""}
+    ${planungHtml(d.planung) ? `<section class="stack"><span class="lbl">Deine Pflegeplanung</span>${planungHtml(d.planung)}</section>` : ""}
+    <section class="stack"><span class="lbl">Das Gespräch</span><div class="chat">${(d.chat||[]).map(m => `<div class="msg ${m.role==="assistant"?"p":"k"}"><span class="who">${m.role==="assistant"?"Prüferin":"Du"}</span>${esc(String(m.content).replace("[ENDE]",""))}</div>`).join("")}</div></section>
+    ${d.bewertung ? oralEvalHtml(o, d.bewertung) : `<p class="note ${d.status==="abgebrochen"?"warn":"info"}">${d.status==="abgebrochen" ? "Dieses Gespräch wurde nicht zu Ende geführt." : "Die Bewertung ist noch nicht da. Sie erscheint hier, sobald die Prüferin fertig ist."}</p>`}
+    ${horizontHtml(o)}
+    <div class="row"><a class="btn pri" style="text-decoration:none" href="#${o.id}">Diesen Fall noch einmal üben</a><a href="#ergebnisse" class="muted">← zu den Ergebnissen</a></div>
+  </article>`;
+}
+
 function renderOral(app, o){
-  const key = "oral-" + o.id;
+  const key = lsKey("oral-" + o.id);
   const st = LS.get(key) || { phase:"vorbereitung", notizen:"", chat:[] };
   const persist = () => LS.set(key, st);
   if(st.phase === "vorbereitung"){
@@ -395,7 +452,7 @@ function renderOral(app, o){
     $("#addrow").onclick = () => { if(st.planung.length < 6){ st.planung.push({p:"",z:"",m:"",b:""}); persist(); drawPlan(); } };
     const upd = () => { const rest = st.vorbStart + st.vorbMin*60000 - Date.now(); $("#rest").textContent = rest > 0 ? fmtT(rest) : "Zeit um — beginne die Prüfung"; $("#clock").classList.toggle("low", rest < 2*60000); };
     upd(); tick = setInterval(upd, 1000);
-    $("#go").onclick = () => { st.phase = "pruefung"; st.pStart = Date.now(); persist(); render(); };
+    $("#go").onclick = () => { st.phase = "pruefung"; st.pStart = Date.now(); st.sid = String(st.pStart); persist(); render(); };
     return;
   }
   const ended = st.phase === "ende";
@@ -404,7 +461,7 @@ function renderOral(app, o){
     <details><summary class="lbl" style="cursor:pointer">Fall und Notizen</summary><div class="fall" style="margin-top:8px">${o.fall.map(p => `<p>${esc(p)}</p>`).join("")}</div>${st.notizen?`<p class="muted" style="white-space:pre-wrap;margin-top:8px">${esc(st.notizen)}</p>`:""}${(st.planung||[]).some(r => r.p||r.z||r.m||r.b) ? `<div class="tbl" style="margin-top:8px"><table><thead><tr><th>Pflegeproblem</th><th>Pflegeziele</th><th>Pflegemaßnahmen</th><th>Begründungen</th></tr></thead><tbody>${st.planung.filter(r => r.p||r.z||r.m||r.b).map(r => `<tr><td style="white-space:pre-wrap">${esc(r.p)}</td><td style="white-space:pre-wrap">${esc(r.z)}</td><td style="white-space:pre-wrap">${esc(r.m)}</td><td style="white-space:pre-wrap">${esc(r.b)}</td></tr>`).join("")}</tbody></table></div>` : ""}</details>
     <div class="chat" id="chat"></div>
     ${ended ? "" : `<label class="lbl" for="ans">Deine Antwort</label><textarea id="ans" style="min-height:100px" placeholder="Schreib oder diktiere deine Antwort …"></textarea>
-    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 Frage vorlesen</button><button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
+    <div class="row"><button class="btn pri" id="send">Antwort senden</button><button class="btn ghost" id="vor">🔊 Frage vorlesen</button>${SR && MODE === "public" ? `<button class="btn ghost" id="mic" type="button">🎤 Sprechen</button>` : ""}<button class="btn red" id="stop">Prüfung beenden und bewerten</button></div>`}
     <div id="eval" class="stack"></div>
     <div class="row"><button class="btn ghost" id="reset">Fall neu beginnen</button><a href="#muendlich" class="muted">← zurück</a></div>
   </article>`;
@@ -434,23 +491,33 @@ function renderOral(app, o){
       bubble.lastChild.textContent = kiFehler(e) + " Sende deine Antwort noch einmal."; }
     finally{ $("#send") && ($("#send").disabled = false); }
   };
-  const showOralEval = r => { $("#eval").innerHTML = `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}${r.planung ? `<div><b>Pflegeplanung:</b> ${esc(r.planung)}</div>` : ""}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
+  const showOralEval = r => { $("#eval").innerHTML = oralEvalHtml(o, r) + horizontHtml(o) + `<p class="muted" style="font-size:.9rem">Dieses Gespräch ist in deinen <a href="#ergebnisse">Ergebnissen</a> gespeichert.</p>`; };
+  const _altShow = r => { $("#eval").innerHTML = `<section class="grade"><div><span class="lbl">Übungsnote</span><div class="n">${esc(r.note)}</div></div><div class="pen" style="flex:1 1 260px">${(r.kb||[]).map(k => `<div><b>KB ${esc(k.kb)}:</b> ${esc(k.urteil)}${(k.fehlt||[]).length?` <span class="muted" style="font-family:var(--f-ui);font-size:.9rem">Fehlt: ${k.fehlt.map(esc).join("; ")}</span>`:""}</div>`).join("")}${r.planung ? `<div><b>Pflegeplanung:</b> ${esc(r.planung)}</div>` : ""}<div class="muted" style="font-family:var(--f-ui);font-size:.9rem;margin-top:6px">🇫🇷 ${esc(r.fr||"")}</div></div></section>
     <div class="cmp"><div><span class="lbl">Das kannst du</span><ul>${(r.staerken||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div><div><span class="lbl">Das übst du als Nächstes</span><ul>${(r.ueben||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div></div>
     ${(r.sprache||[]).length?`<div class="lang"><span class="lbl">Sprache</span><ul>${r.sprache.map(s => `<li><s>${esc(s.falsch)}</s> → <b>${esc(s.richtig)}</b> <span class="muted">(Baustelle ${esc(s.baustelle)})</span></li>`).join("")}</ul></div>`:""}
     <details><summary class="lbl" style="cursor:pointer">Erwartungshorizont</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(e => `<li>${esc(e.text)}<div class="src">${esc(e.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details>`; };
   const bewerten = async () => {
     st.phase = "ende"; persist();
     $("#eval").innerHTML = `<p class="note info">Die Prüferin bewertet das Gespräch … (ein bis drei Minuten)</p>`;
-    try{ const r = await B.oralEval(o, st); st.bewertung = r; persist(); showOralEval(r); }
+    try{ const r = await B.oralEval(o, st); st.bewertung = r; persist(); oralArchiv(o, st, "bewertet"); showOralEval(r); }
     catch(e){
-      if(e && e.code === "wartet_oral"){ st.wartet = Date.now(); persist(); $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><details open><summary class="lbl" style="cursor:pointer">Erwartungshorizont zum Selbstvergleich</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(x => `<li>${esc(x.text)}<div class="src">${esc(x.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details><button class="btn ghost" id="retry">Ist die Bewertung da? Neu laden</button>`; $("#retry").onclick = bewerten; return; }
+      if(e && e.code === "wartet_oral"){ st.wartet = Date.now(); persist(); oralArchiv(o, st, "wartet"); $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><details open><summary class="lbl" style="cursor:pointer">Erwartungshorizont zum Selbstvergleich</summary><ol>${o.fragen.map(f => `<li><b>[KB ${esc(f.kb)}] ${esc(f.frage)}</b><ul>${f.erwartung.map(x => `<li>${esc(x.text)}<div class="src">${esc(x.quelle||"")}</div></li>`).join("")}</ul></li>`).join("")}</ol></details><button class="btn ghost" id="retry">Ist die Bewertung da? Neu laden</button>`; $("#retry").onclick = bewerten; return; }
       $("#eval").innerHTML = `<p class="note warn">${esc(kiFehler(e))}</p><button class="btn red" id="retry">Noch einmal bewerten</button>`; $("#retry").onclick = bewerten; }
   };
-  $("#reset").onclick = () => { LS.set(key, null); render(); };
+  $("#reset").onclick = () => { oralArchiv(o, st, st.bewertung ? "bewertet" : st.wartet ? "wartet" : "abgebrochen"); LS.set(key, null); render(); };
   if(ended){ if(st.bewertung) showOralEval(st.bewertung); else bewerten(); return; }
   $("#vor").onclick = () => { const last = [...st.chat].reverse().find(m => m.role === "assistant"); if(last) speak(last.content); };
   $("#send").onclick = () => { const t = $("#ans").value.trim(); if(!t) return; st.chat.push({role:"user", content:t}); persist(); $("#ans").value = ""; draw(); ask(); };
   $("#stop").onclick = () => bewerten();
+  if($("#mic")){ let rec = null; $("#mic").onclick = () => {
+    if(rec){ rec.stop(); return; }
+    rec = new SR(); rec.lang = "de-DE"; rec.interimResults = true; rec.continuous = true;
+    const basis = $("#ans").value ? $("#ans").value.trim() + " " : "";
+    rec.onresult = ev => { let t = ""; for(const r of ev.results) t += r[0].transcript; $("#ans").value = basis + t; };
+    rec.onend = () => { rec = null; $("#mic").textContent = "🎤 Sprechen"; };
+    rec.onerror = ev => { flash(ev.error === "not-allowed" ? "Mikrofon nicht erlaubt. Erlaube es in den Einstellungen deines Browsers oder nutze das Mikrofon deiner Tastatur." : "Spracherkennung: " + ev.error); };
+    try{ speechSynthesis.cancel(); rec.start(); $("#mic").textContent = "⏹ Fertig gesprochen"; }catch(e){ rec = null; }
+  }; }
   if(!st.chat.length) ask();
 }
 
@@ -475,9 +542,19 @@ function renderTipps(app){
 /* ---------- Ergebnisse ---------- */
 function renderResults(app){
   const rows = Object.values(S.docs).filter(d => EX[d.pruefung]).sort((a,b) => (b.start||0) - (a.start||0));
-  app.innerHTML = `<section class="intro"><span class="lbl">Ergebnisse</span><h1>Deine Versuche</h1><p class="muted">Jeder Versuch bleibt hier stehen. So siehst du, ob du besser wirst.</p></section>
+  const orals = oralVerlauf();
+  app.innerHTML = `<section class="intro"><span class="lbl">Ergebnisse</span><h1>Dein Verlauf</h1><p class="muted">Jeder Versuch bleibt hier stehen, mit deinen Antworten und der Korrektur. So siehst du, ob du besser wirst.</p></section>
+  <article class="sheet">
+  <section class="stack"><h2>Schriftlich</h2>
   ${rows.length ? `<div class="tbl"><table><thead><tr><th>Datum</th><th>Klausur</th><th>Versuch</th><th>Punkte</th><th>Note</th><th></th></tr></thead><tbody>${rows.map(d => { const ex = EX[d.pruefung]; const k = d.korrektur;
-    return `<tr><td>${fmtD(d.start)}</td><td>${ex.probe ? "Probelauf" : ex.klausur + esc(ex.variante)} · ${esc(ex.titel)}</td><td>${d.versuch}</td><td style="font-variant-numeric:tabular-nums">${k ? komma(k.summe) + " / " + ex.gesamtpunkte : d.status==="laeuft"?"läuft":"nicht korrigiert"}</td><td>${k ? note(k.prozent)[0] : "–"}</td><td><a href="#${ex.id}">öffnen</a></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note info">Noch kein Versuch. Fang mit dem Probelauf an.</p>`}`;
+    return `<tr><td>${fmtD(d.start)}</td><td>${ex.probe ? "Probelauf" : ex.klausur + esc(ex.variante)} · ${esc(ex.titel)}</td><td>${d.versuch}</td><td style="font-variant-numeric:tabular-nums">${k ? komma(k.summe) + " / " + ex.gesamtpunkte : d.status==="laeuft"?"läuft":d.korrekturWartet?"bei der Prüferin":"nicht korrigiert"}</td><td>${k ? note(k.prozent)[0] : "–"}</td><td><a href="#${d.status==="laeuft" ? ex.id : "v-" + esc(d.key)}">öffnen</a></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="muted">Noch keine schriftliche Arbeit. Fang mit dem Probelauf an.</p>`}
+  </section>
+  <section class="stack"><h2>Mündlich</h2>
+  ${orals.length ? `<div class="tbl"><table><thead><tr><th>Datum</th><th>Fall</th><th>Dauer</th><th>Ergebnis</th><th></th></tr></thead><tbody>${orals.map(d => { const [st] = oralStatus(d); const dauer = d.chat && d.chat.length && d.ende && d.start ? Math.round((d.ende - d.start)/60000) + " min" : "–";
+    return `<tr><td>${fmtD(d.start)}</td><td>${esc(OR[d.fall].titel)}</td><td style="font-variant-numeric:tabular-nums">${dauer}</td><td>${esc(st)}</td><td><a href="#h-${esc(d.id)}">öffnen</a></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="muted">Noch keine mündliche Prüfung.</p>`}
+  </section>
+  ${MODE !== "public" || S.mode === "api" ? "" : `<p class="note warn">Der Speicher ist nicht verbunden: dieser Verlauf liegt nur auf diesem Gerät.</p>`}
+  </article>`;
 }
 
 /* ---------- Abgaben (Besitzerin) ---------- */

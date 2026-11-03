@@ -40,7 +40,12 @@ Artifact-URL: steht in `README.md` (nie eine neue URL anlegen, immer dieselbe ak
 ## Die öffentliche Seite (Netlify) — seit 03.11.2026
 
 Ihr Wunsch: *„la personne ne doit pas forcément avoir Claude pour ouvrir“* → **https://examen-pflege-uebung.netlify.app**
-(kein Konto nötig: Name eingeben, Code für ein zweites Gerät steht auf der Startseite).
+(kein Konto nötig). **Seit 03.11.2026 hängt alles am Namen** (ihr Wunsch: *„au nom de la personne, et si la personne
+remet son nom, son travail continue“*): Kennung = `u` + SHA-256(„examen-pflege:“ + Name klein, Leerzeichen
+zusammengefasst) — derselbe Name auf jedem Gerät = dieselbe Arbeit. Grenze, ihr gesagt: wer den Namen kennt, sieht die Arbeit.
+Reiter **Ergebnisse** = Verlauf: alle schriftlichen Versuche (`#v-<key>`) und alle mündlichen Gespräche (`#h-<fall>-<sid>`,
+mit Gespräch, Notizen, Pflegeplanung, Bewertung). Mündlich gibt es auf der Netlify-Seite einen 🎤-Knopf (Spracherkennung
+des Browsers, `de-DE`); im Artifact sperrt der Rahmen das Mikrofon.
 
 | | |
 |---|---|
